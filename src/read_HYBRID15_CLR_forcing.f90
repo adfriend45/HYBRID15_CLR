@@ -23,15 +23,17 @@ PPT =  0.1 ! mm
 !----------------------------------------------------------------------!
 ! Read binary of lons and lats.
 !----------------------------------------------------------------------!
-OPEN (10,FILE=trim(home_dir)//"/utilities/extract_clm/data/lonslats.bin", &
-      FORM="UNFORMATTED",STATUS="UNKNOWN")
+!OPEN (10,FILE=trim(home_dir)//"/utilities/extract_clm/data/lonslats.bin", &
+!      FORM="UNFORMATTED",STATUS="UNKNOWN")
+OPEN (10,FILE='lonslats.bin', FORM="UNFORMATTED",STATUS="UNKNOWN")
 READ (10) lon, lat
 CLOSE (10)
 !----------------------------------------------------------------------!
 ! Read binaries of x and y coordinates.
 !----------------------------------------------------------------------!
-OPEN (10,FILE=trim(home_dir)//"/utilities/extract_clm/data/coords.bin", &
-      FORM="UNFORMATTED",STATUS="UNKNOWN")
+!OPEN (10,FILE=trim(home_dir)//"/utilities/extract_clm/data/coords.bin", &
+!      FORM="UNFORMATTED",STATUS="UNKNOWN")
+OPEN (10,FILE='coords.bin', FORM="UNFORMATTED",STATUS="UNKNOWN")
 READ (10) x_k, y_k
 CLOSE (10)
 !----------------------------------------------------------------------!

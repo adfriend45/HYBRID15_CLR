@@ -13,6 +13,8 @@ integer :: it
 integer :: ihr
 integer :: ic_count
 integer :: k
+integer :: kw
+integer :: kl
 real, dimension (nlon) :: lon ! Longitude (degrees east)
 real, dimension (nlat) :: lat ! Latitude (degrees north)
 real :: co2_ppm (2023)
@@ -101,8 +103,6 @@ real :: GPP_ann
 real :: PPT_ann
 real :: RO_ann
 real :: ET_ann
-real :: kw
-real :: kl
 real :: l, rt, t, b
 real :: tmod
 real :: T_soil ! oC
