@@ -5,15 +5,16 @@ SRC_DIR = src
 EXE = $(BUILD_DIR)/HYBRID15_CLR.exe
 
 SOURCES = \
-	$(SRC_DIR)/PARS_MOD.f90				\
-	$(SRC_DIR)/VARS_MOD.f90				\
-	$(SRC_DIR)/read_HYBRID15_CLR_forcing.f90	\
-	$(SRC_DIR)/crown.f90				\
-	$(SRC_DIR)/leaf.f90				\
-	$(SRC_DIR)/hydro.f90				\
-	$(SRC_DIR)/grow.f90				\
-	$(SRC_DIR)/decomp.f90				\
-	$(SRC_DIR)/HYBRID15_CLR.f90
+	$(SRC_DIR)/PARS_MOD.F90				\
+	$(SRC_DIR)/VARS_MOD.F90				\
+	$(SRC_DIR)/INIT.F90				\
+	$(SRC_DIR)/READ_HYBRID15_CLR_FORCING.F90	\
+	$(SRC_DIR)/CROWN.F90				\
+	$(SRC_DIR)/LEAF.F90				\
+	$(SRC_DIR)/HYDRO.F90				\
+	$(SRC_DIR)/GROW.F90				\
+	$(SRC_DIR)/DECOMP.F90				\
+	$(SRC_DIR)/HYBRID15_CLR.F90
 
 OBJECTS = $(patsubst $(SRC_DIR)/%.F90,$(BUILD_DIR)/%.o,$(SOURCES))
 
