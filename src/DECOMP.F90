@@ -176,8 +176,9 @@ transfer_vec (ip_surface_microbe) = &
 co2 = co2 + soil_metabolic_co2_fraction * decay (ip_soil_metabolic)
 transfer_vec (ip_active_som) = transfer_vec (ip_active_som) + &
   soil_metabolic_active_fraction * decay(ip_soil_metabolic)
-    !------------------------------------------------------------------
+!----------------------------------------------------------------------!
 ! Pool 7 - slow SOM.
+!----------------------------------------------------------------------!
 csp = max (zero, min (slow_som_passive_base_fraction + &
   slow_som_passive_clay_multiplier * clay_fraction, one))
 co2 = co2 + slow_som_co2_fraction * decay (ip_slow_som)
@@ -185,8 +186,9 @@ transfer_vec (ip_passive_som) = transfer_vec (ip_passive_som) + &
   csp * decay (ip_slow_som)
 transfer_vec (ip_active_som) = transfer_vec (ip_active_som) + &
   (one - slow_som_co2_fraction - csp) * decay (ip_slow_som)
-    !------------------------------------------------------------------
+!----------------------------------------------------------------------!
 ! Pool 8 - passive SOM.
+!----------------------------------------------------------------------!
 co2 = co2 + passive_som_co2_fraction * decay (ip_passive_som)
 transfer_vec (ip_active_som) = transfer_vec (ip_active_som) + &
   passive_som_active_fraction * decay (ip_passive_som)

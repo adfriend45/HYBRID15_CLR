@@ -2,6 +2,10 @@ module PARS_MOD
 !----------------------------------------------------------------------!
 implicit none
 !----------------------------------------------------------------------!
+integer, parameter :: syr     = 1901
+integer, parameter :: eyr     = 2025
+integer, parameter :: nyr_co2 = eyr
+!----------------------------------------------------------------------!
 integer, parameter :: ndays   =   365
 integer, parameter :: nt      =    48
 integer, parameter :: nland   = 67420

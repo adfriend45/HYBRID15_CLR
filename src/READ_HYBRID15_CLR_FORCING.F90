@@ -4,8 +4,8 @@ use PARS_MOD
 use VARS_MOD
 !----------------------------------------------------------------------!
 open (10,file='/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-&TRENDYGCB2024/INPUT/global_co2_ann_1700_2023.txt',status='old')
-do kyr_ce = 1700, 2023
+&TRENDYGCB2026/CO2field/global_co2_ann_1700_2025.txt',status='old')
+do kyr_ce = 1700, 2025
   read (10,*) ikyr, co2_ppm (kyr_ce)
 end do
 close (10)

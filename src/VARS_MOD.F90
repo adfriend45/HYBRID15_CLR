@@ -20,7 +20,7 @@ real, dimension (nlon) :: lon ! Longitude (degrees east)
 real, dimension (nlat) :: lat ! Latitude (degrees north)
 real, dimension (n_pools) :: pool_initial, c_state, decay, k_decay, c_start, input_vec
 real, dimension (n_pools) :: transfer_vec, c_end
-real :: co2_ppm (2023)
+real :: co2_ppm (nyr_co2)
 real :: hr
 real :: tswrf
 real :: pres
@@ -134,7 +134,7 @@ real :: L_ann ! g[C] m-2 yr-1
 real :: Rh_ann ! g[C] m-2 yr-1
 real :: NEE_ann ! g[C] m-2 yr-1
 real, allocatable, dimension (:,:) :: tmp_global   ! K
-real, allocatable, dimension (:,:) :: pre_global   ! kg m-2 s-1
+real, allocatable, dimension (:,:) :: pre_global   ! mm/6-hr
 real, allocatable, dimension (:,:) :: tswrf_global ! W m-2
 real, allocatable, dimension (:,:) :: dlwrf_global ! W m-2
 real, allocatable, dimension (:,:) :: spfh_global  ! kg[water] kg[air]-1
