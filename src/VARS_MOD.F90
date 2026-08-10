@@ -5,13 +5,18 @@ character (len=200) :: home_dir
 character (len=  4) :: cyr
 character (len=200) :: filename
 integer, dimension (nland) :: x_k, y_k
+integer :: syr
+integer :: eyr
+integer :: nyr_sim
+integer :: nyr_co2
 integer :: kyr_ce
-integer :: kyr, ikyr
+integer :: ikyr
 integer :: kday
 integer :: kt
 integer :: it
 integer :: ihr
 integer :: ic_count
+integer :: ivar
 integer :: k
 integer :: kw
 integer :: kl
@@ -20,16 +25,24 @@ real, dimension (nlon) :: lon ! Longitude (degrees east)
 real, dimension (nlat) :: lat ! Latitude (degrees north)
 real, dimension (n_pools) :: pool_initial, c_state, decay, k_decay, c_start, input_vec
 real, dimension (n_pools) :: transfer_vec, c_end
-real :: co2_ppm (nyr_co2)
+real, allocatable :: co2_ppm (:)
 real :: hr
-real :: tswrf
-real :: pres
-real :: tmp
-real :: spfh
-real :: pre
-real :: dlwrf
-real :: ugrd
-real :: vgrd
+real, allocatable :: tmp   (:,:)
+real, allocatable :: pre   (:,:)
+real, allocatable :: tswrf (:,:)
+real, allocatable :: dlwrf (:,:)
+real, allocatable :: spfh  (:,:)
+real, allocatable :: pres  (:,:)
+real, allocatable :: ugrd  (:,:)
+real, allocatable :: vgrd  (:,:)
+real :: tmp_l
+real :: pre_l
+real :: tswrf_l
+real :: dlwrf_l
+real :: spfh_l
+real :: pres_l
+real :: ugrd_l
+real :: vgrd_l
 real :: D0
 real :: D_mol
 real :: swp

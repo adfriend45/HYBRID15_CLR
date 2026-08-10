@@ -3,23 +3,14 @@ subroutine READ_HYBRID15_CLR_FORCING
 use PARS_MOD
 use VARS_MOD
 !----------------------------------------------------------------------!
+implicit none
+!----------------------------------------------------------------------!
 open (10,file='/rds/user/adf10/rds-mb425-geogscratch/adf10/&
 &TRENDYGCB2026/CO2field/global_co2_ann_1700_2025.txt',status='old')
-do kyr_ce = 1700, 2025
+do kyr_ce = 1700, eyr
   read (10,*) ikyr, co2_ppm (kyr_ce)
 end do
 close (10)
-!----------------------------------------------------------------------!
-tswrf = 900.0    ! W m-2
-pres  = 101325.0 ! Pa
-tmp   = 298.0    ! K
-spfh  = 0.02     ! kg[water] kg[air]
-pre   = 600.0 / (60.0*60.0*24.0*365.0) ! mm s-1
-dlwrf = 200.0    ! W m-2
-ugrd  = 2.0      ! m s-1
-vgrd  = 2.0      ! m s-1
-TC  = 20.0 ! oC
-PPT =  0.1 ! mm
 !----------------------------------------------------------------------!
 ! Read binary of lons and lats.
 !----------------------------------------------------------------------!
@@ -51,8 +42,8 @@ do kl = 1, nland
   !  if ((t >= 45.0) .and. (b <= 54.39)) then
   ! For High Fen, Cambs (Google AI).
   if ((l <= -0.257) .and. (rt >= -0.257)) then
-    if ((t >= 52.454) .and. (b <= 52.454)) then
-      write (20,'(i5,2f12.4)') kl,lon(x_k(kl)),lat(y_k(kl))
+    if ((t >= 54.1054) .and. (b <= 54.1054)) then
+      write (20,'(i5,2f14.10)') kl,lon(x_k(kl)),lat(y_k(kl))
       write (*,*) l,rt,t,b,kl
       ic_count = ic_count + 1
       kw = kl
@@ -73,24 +64,25 @@ allocate (ugrd_global (nland,ntimes))
 allocate (vgrd_global (nland,ntimes))
 !----------------------------------------------------------------------!
 ivar = 1
-do kyr_ce = 2021, 2021
+ikyr = 1
+do kyr_ce = syr, eyr
   write (*,*) 'processing ', kyr_ce
   write (cyr,'(i4)') kyr_ce
   !--------------------------------------------------------------------!
   ! tmp (K)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-   &TRENDYGCB2024/binaries/tmp/crujra.v2.4.5d.tmp.'//cyr//&
+   &TRENDYGCB2026/binaries/tmp/crujra.v4.10.5d.tmp.'//cyr//&
    &'.365d.noc.bin'
   !--------------------------------------------------------------------!
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) tmp_global
   close (10)
   !--------------------------------------------------------------------!
-  ! pre (kg m-2 s-1)
+  ! pre (mm/6-hr)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-  &TRENDYGCB2024/binaries/pre/crujra.v2.4.5d.pre.'//cyr//&
+  &TRENDYGCB2026/binaries/pre/crujra.v4.10.5d.pre.'//cyr//&
   &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) pre_global
@@ -99,8 +91,7 @@ do kyr_ce = 2021, 2021
   ! tswrf (W/m2)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/tswrf/crujra.v2.4.5d.tswrf.'//cyr//&
-    &'.365d.noc.bin'
+    &TRENDYGCB2026/binaries/tswrf/tswrf_v15_'//cyr//'.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) tswrf_global
   close (10)
@@ -108,7 +99,7 @@ do kyr_ce = 2021, 2021
   ! dlwrf (W/m2)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/dlwrf/crujra.v2.4.5d.dlwrf.'//cyr//&
+    &TRENDYGCB2026/binaries/dlwrf/crujra.v4.10.5d.dlwrf.'//cyr//&
     &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) dlwrf_global
@@ -117,7 +108,7 @@ do kyr_ce = 2021, 2021
   ! spfh (kg/kg)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/spfh/crujra.v2.4.5d.spfh.'//cyr//&
+    &TRENDYGCB2026/binaries/spfh/crujra.v4.10.5d.spfh.'//cyr//&
     &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) spfh_global
@@ -126,7 +117,7 @@ do kyr_ce = 2021, 2021
   ! pres (Pa)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/pres/crujra.v2.4.5d.pres.'//cyr//&
+    &TRENDYGCB2026/binaries/pres/crujra.v4.10.5d.pres.'//cyr//&
     &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) pres_global
@@ -135,7 +126,7 @@ do kyr_ce = 2021, 2021
   ! ugrd; longitudinal (zonal) wind component (m/s)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/ugrd/crujra.v2.4.5d.ugrd.'//cyr//&
+    &TRENDYGCB2026/binaries/ugrd/crujra.v4.10.5d.ugrd.'//cyr//&
     &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) ugrd_global
@@ -144,11 +135,22 @@ do kyr_ce = 2021, 2021
   ! vgrd; latitudinal (meridional) wind component (m/s)
   !--------------------------------------------------------------------!
   filename = '/rds/user/adf10/rds-mb425-geogscratch/adf10/&
-    &TRENDYGCB2024/binaries/vgrd/crujra.v2.4.5d.vgrd.'//cyr//&
+    &TRENDYGCB2026/binaries/vgrd/crujra.v4.10.5d.vgrd.'//cyr//&
     &'.365d.noc.bin'
   open (10, file = filename, form = 'unformatted', status = 'old')
   read (10) vgrd_global
   close (10)
+  !--------------------------------------------------------------------!
+  tmp   (ikyr,:) = tmp_global   (kw,:)
+  pre   (ikyr,:) = pre_global   (kw,:) / sixhr_s
+  tswrf (ikyr,:) = tswrf_global (kw,:)
+  dlwrf (ikyr,:) = dlwrf_global (kw,:)
+  spfh  (ikyr,:) = spfh_global  (kw,:)
+  pres  (ikyr,:) = pres_global  (kw,:)
+  ugrd  (ikyr,:) = ugrd_global  (kw,:)
+  vgrd  (ikyr,:) = vgrd_global  (kw,:)
+  !--------------------------------------------------------------------!
+  ikyr = ikyr + 1
   !--------------------------------------------------------------------!
 end do ! kyr_ce
 !----------------------------------------------------------------------!

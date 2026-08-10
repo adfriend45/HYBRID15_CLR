@@ -2,10 +2,6 @@ module PARS_MOD
 !----------------------------------------------------------------------!
 implicit none
 !----------------------------------------------------------------------!
-integer, parameter :: syr     = 1901
-integer, parameter :: eyr     = 2025
-integer, parameter :: nyr_co2 = eyr
-!----------------------------------------------------------------------!
 integer, parameter :: ndays   =   365
 integer, parameter :: nt      =    48
 integer, parameter :: nland   = 67420
@@ -29,6 +25,7 @@ real, parameter :: eps       = 1.0e-8
 real, parameter :: dt_years  = one / 365.0
 real, parameter :: dt_hr     = 0.5
 real, parameter :: dt_s      = dt_hr * 60.0 * 60.0
+real, parameter :: sixhr_s   = 6.0 * 60.0 * 60.0
 real, parameter :: mol_per_J = 2.3e-6
 real, parameter :: tf        = 273.15
 real, parameter :: Topt_J    = 31.0
