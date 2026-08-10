@@ -76,7 +76,7 @@ do ikyr = 1, nyr_sim
       ! Accumulate annual diagnostics.
       !----------------------------------------------------------------!
       GPP_ann = GPP_ann + dt_s * gpp
-      NEE_ann = NEE_ann + dt_s * (Raut + gpp)
+      NEE_ann = NEE_ann + dt_s * (Raut - gpp)
       !----------------------------------------------------------------!
     end do ! kt
     !------------------------------------------------------------------!
