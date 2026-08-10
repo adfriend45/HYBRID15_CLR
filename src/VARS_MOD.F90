@@ -26,6 +26,7 @@ real, dimension (nlat) :: lat ! Latitude (degrees north)
 real, dimension (n_pools) :: pool_initial, c_state, decay, k_decay, c_start, input_vec
 real, dimension (n_pools) :: transfer_vec, c_end
 real, allocatable :: co2_ppm (:)
+real :: fiSOM
 real :: hr
 real, allocatable :: tmp   (:,:)
 real, allocatable :: pre   (:,:)
