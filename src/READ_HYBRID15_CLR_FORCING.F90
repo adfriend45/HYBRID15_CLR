@@ -154,4 +154,13 @@ do kyr_ce = syr, eyr
   !--------------------------------------------------------------------!
 end do ! kyr_ce
 !----------------------------------------------------------------------!
+deallocate (tmp_global  )
+deallocate (pre_global  )
+deallocate (tswrf_global)
+deallocate (dlwrf_global)
+deallocate (spfh_global )
+deallocate (pres_global )
+deallocate (ugrd_global )
+deallocate (vgrd_global )
+!----------------------------------------------------------------------!
 end subroutine READ_HYBRID15_CLR_FORCING

@@ -15,18 +15,21 @@ write (*,*)
 !----------------------------------------------------------------------!
 ! Read forcings and initalise all state variables etc.
 !----------------------------------------------------------------------!
+write (*,*) 'Starting INIT'
 call INIT
 !----------------------------------------------------------------------!
 kyr_ce = syr
 do ikyr = 1, nyr_sim
+  Cbal = CDM * biomass + sum (c_state)
   ca_fmol = co2_ppm (kyr_ce) / 1.0e6 ! mol[CO2] mol[air]-1
-  GPP_ann = zero
-  Rh_ann   = zero ! Annual soil respiration flux (g[C] m-2 yr-1)
-  L_ann   = zero ! Annual litter flux (g[C] m-2 yr-1)
-  PPT_ann = zero
-  RO_ann  = zero
-  ET_ann  = zero
-  NEE_ann = zero
+  Raut_ann = zero ! Annual autotrophic respiration       (g[C] m-2 yr-1)
+  GPP_ann  = zero ! Annual gross primary production      (g[C] m-2 yr-1)
+  Rhet_ann = zero ! Annual heterotrophic respiration     (g[C] m-2 yr-1)
+  L_ann    = zero ! Annual litter flux (g[C] m-2 yr-1)
+  PPT_ann  = zero ! Annual precipitation                         (mm/yr)
+  RO_ann   = zero
+  ET_ann   = zero
+  NEE_ann  = zero
   it = 0
   do kday = 1, ndays
     hr = 0.0 - dt_hr
@@ -75,15 +78,15 @@ do ikyr = 1, nyr_sim
       !----------------------------------------------------------------!
       ! Accumulate annual diagnostics.
       !----------------------------------------------------------------!
-      GPP_ann = GPP_ann + dt_s * gpp
-      NEE_ann = NEE_ann + dt_s * (Raut - gpp)
+      GPP_ann  = GPP_ann  + dt_s * gpp
+      Raut_ann = Raut_ann + dt_s * Raut
+      NEE_ann  = NEE_ann  + dt_s * (Raut - gpp)
       !----------------------------------------------------------------!
     end do ! kt
     !------------------------------------------------------------------!
     ! Daily total plant C input to soil decomposition routine.
     !------------------------------------------------------------------!
     total_input = CDM * total_litter_day
-    L_ann= L_ann + total_input
     !------------------------------------------------------------------!
     ! Advance SOM.
     !------------------------------------------------------------------!
@@ -92,13 +95,19 @@ do ikyr = 1, nyr_sim
     !------------------------------------------------------------------!
     ! Accumulate annual diagnostics.
     !------------------------------------------------------------------!
-    NEE_ann = NEE_ann + co2
+    L_ann    = L_ann    + total_litter_day
+    Rhet_ann = Rhet_ann + day_s * Rhet
+    NEE_ann  = NEE_ann  + day_s * Rhet
     !------------------------------------------------------------------!
   end do ! kday
   !--------------------------------------------------------------------!
-  write (*,'(i5,9f12.4)') kyr_ce, GPP_ann, L_ann, PPT_ann, &
-  RO_ann, ET_ann, NEE_ann, biomass, SOM, Rh_ann
+  write (*,'(i5,10f12.4)') kyr_ce, GPP_ann, Raut_ann, Rhet_ann, &
+                           NEE_ann, L_ann, biomass, SOM, PPT_ann, &
+                           RO_ann, ET_ann
   !--------------------------------------------------------------------!
+  write (*,*) 'Cbal = ', CDM * biomass + sum (c_state) & ! final C
+                         - Cbal & ! initial C
+                         - (GPP_ann - Raut_ann - Rhet_ann) ! gains - losses
   kyr_ce = kyr_ce + 1
   !--------------------------------------------------------------------!
 end do ! kyr

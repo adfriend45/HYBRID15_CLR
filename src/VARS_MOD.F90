@@ -137,7 +137,8 @@ real :: co2
 real :: silt_plus_clay, ft, cal, cap, cas, total
 real :: leaching_water_cm, leaching_water_day, leaching_cm_day, leached_c
 real :: csp
-real :: Raut
+real :: Raut ! Autotrophic respiration (g[C] m-2 s-1)
+real :: Rhet ! Heterotrophic respiration (g[C] m-2 s-1)
 real :: gpp ! g[C] m-2 s-1
 real :: npp ! g[DM] m-2 s-1
 real :: litter ! g[DM] m-2 s-1
@@ -145,8 +146,10 @@ real :: dbiomass ! g[DM] m-2 s-1
 real :: biomass ! g[DM] m-2
 real :: SOM ! g[SOM] m-2
 real :: L_ann ! g[C] m-2 yr-1
-real :: Rh_ann ! g[C] m-2 yr-1
+real :: Raut_ann ! g[C] m-2 yr-1
+real :: Rhet_ann ! g[C] m-2 yr-1
 real :: NEE_ann ! g[C] m-2 yr-1
+real :: Cbal
 real, allocatable, dimension (:,:) :: tmp_global   ! K
 real, allocatable, dimension (:,:) :: pre_global   ! mm/6-hr
 real, allocatable, dimension (:,:) :: tswrf_global ! W m-2

@@ -53,10 +53,12 @@ open (20, file = trim(home_dir)//'/CLR/HYBRID15_CLR/results/&
 call READ_HYBRID15_CLR_FORCING
 !----------------------------------------------------------------------!
 write (*,*)
-write (*,'(a113)') 'kyr_ce   GPP_ann       L_ann     PPT_ann      RO_ann &
-            &     ET_ann     NEE_ann     biomass         SOM      Rh_ann'
-write (*,'(a113)') '   CE  g[C] m-2 yr-1 g[C] m-2 yr-1 mm yr-1    mm yr-1 &
-            &   mm yr-1 g[C] m-2 yr-1 g[DM] m-2  g[DM] m-2 g[C] m-2 yr-1'
+write (*,'(a125)') 'kyr_ce    GPP_ann    Raut_ann    Rhet_ann&
+               &     NEE_ann       L_ann     biomass         SOM&
+               &     PPT_ann      RO_ann      ET_ann'
+write (*,'(a125)') '   CE   g[C]/m/yr   g[C]/m/yr   g[C]/m/yr&
+               &   g[C]/m/yr  g[DM]/m/yr    g[DM]/m2     g[C]/m2&
+               &     mm yr-1    mm yr-1      mm yr-1'
 !----------------------------------------------------------------------!
 c_state (:) = pool_initial (:)
 !----------------------------------------------------------------------!
