@@ -9,7 +9,7 @@ use VARS_MOD
 !----------------------------------------------------------------------!
 implicit none
 !----------------------------------------------------------------------!
-T_soil = TC
+T_soil = TC_day
 !----------------------------------------------------------------------!
 ! Temperature and sm modifiers from Manas code (EightPoolCenturyMod.F90)
 !----------------------------------------------------------------------!
@@ -22,7 +22,7 @@ denom = saturation_to_field_capacity * swc_field_capacity
 ! swc is volumetric soil water I think. guess calc like this
 ! really need soil depth. need to make consistent with hydro
 !----------------------------------------------------------------------!
-swc = sm / (SM_max / swc_field_capacity)
+swc = sm_day / (SM_max / swc_field_capacity)
 wfps = 100.0 * swc / denom
 wmod = exp (((wfps - wfps_threshold) ** 2) / (-moisture_dry_width))
 wmod = min (one, wmod)

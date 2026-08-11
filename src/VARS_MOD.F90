@@ -116,12 +116,17 @@ real :: rsc
 real :: AET
 real :: PET
 real :: dsm
+real :: GPP_day
+real :: Raut_day
+real :: Rhet_day
 real :: GPP_ann
 real :: PPT_ann
 real :: RO_ann
 real :: ET_ann
 real :: l, rt, t, b
 real :: tmod
+real :: sm_day ! Mean day soil moisture (mm)
+real :: TC_day ! Mean day temperature (oC)
 real :: T_soil ! oC
 real :: denom
 real :: wfps

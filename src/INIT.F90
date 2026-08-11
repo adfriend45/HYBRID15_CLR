@@ -48,6 +48,9 @@ allocate (vgrd (nyr_sim,ntimes))
 open (20, file = trim(home_dir)//'/CLR/HYBRID15_CLR/results/&
      &HYBRID15_CLR_dt_output.txt', status = 'unknown')
 !----------------------------------------------------------------------!
+open (24, file = trim(home_dir)//'/CLR/HYBRID15_CLR/results/&
+     &HYBRID15_CLR_day_output.txt', status = 'unknown')
+!----------------------------------------------------------------------!
 ! Read all CO2 and climate forcings.
 !----------------------------------------------------------------------!
 call READ_HYBRID15_CLR_FORCING

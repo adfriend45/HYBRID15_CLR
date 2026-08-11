@@ -33,6 +33,10 @@ do ikyr = 1, nyr_sim
   it = 0
   do kday = 1, ndays
     hr = 0.0 - dt_hr
+    TC_day = zero
+    sm_day = zero
+    GPP_day  = zero
+    Raut_day = zero
     total_litter_day = zero
     leaching_water_day = zero
     do kt = 1, nt
@@ -40,9 +44,6 @@ do ikyr = 1, nyr_sim
       if (mod (kt-1,12) == 0) it = it + 1
       !----------------------------------------------------------------!
       hr = hr + dt_hr
-      !----------------------------------------------------------------!
-      write (20,'(3i5,4f12.4)') kyr_ce, kday, kt, hr, &
-                                co2_ppm (kyr_ce), tswrf, sm
       !----------------------------------------------------------------!
       ! Set local climate variables for this timepoint.
       !----------------------------------------------------------------!
@@ -55,6 +56,12 @@ do ikyr = 1, nyr_sim
       pres_l  = pres  (ikyr,it) ! Pressure                          (Pa)
       ugrd_l  = ugrd  (ikyr,it) ! Zonal component of wnd speed     (m/s)
       vgrd_l  = vgrd  (ikyr,it) ! Merdional component of wnd speed (m/s)
+      !----------------------------------------------------------------!
+      TC_day = TC_day + TC
+      !----------------------------------------------------------------!
+      !write (20,'(3i5,4f12.4)') kyr_ce, kday, kt, hr, &
+      !                          co2_ppm (kyr_ce), tswrf, sm
+      write (20,'(3i5,2f12.4)'),kyr_ce,kday,kt,hr,tswrf_l
       !----------------------------------------------------------------!
       ! Compute crown photosynthesis, respiration, and conductance.
       !----------------------------------------------------------------!
@@ -76,6 +83,15 @@ do ikyr = 1, nyr_sim
       !----------------------------------------------------------------!
       leaching_water_day = leaching_water_day + leaching_water_cm
       !----------------------------------------------------------------!
+      ! Mean daily soil moisture (mm)
+      !----------------------------------------------------------------!
+      sm_day = sm_day + sm
+      !----------------------------------------------------------------!
+      ! Accumulate daily diagnostics.
+      !----------------------------------------------------------------!
+      GPP_day  = GPP_day  + dt_s * gpp
+      Raut_day = Raut_day + dt_s * Raut
+      !----------------------------------------------------------------!
       ! Accumulate annual diagnostics.
       !----------------------------------------------------------------!
       GPP_ann  = GPP_ann  + dt_s * gpp
@@ -88,9 +104,20 @@ do ikyr = 1, nyr_sim
     !------------------------------------------------------------------!
     total_input = CDM * total_litter_day
     !------------------------------------------------------------------!
-    ! Advance SOM.
+    ! Mean daily temperature (oC)
+    !------------------------------------------------------------------!
+    TC_day = TC_day / float (nt)
+    !------------------------------------------------------------------!
+    ! Mean daily soil moisture (mm)
+    !------------------------------------------------------------------!
+    sm_day = sm_day / float (nt)
+    !------------------------------------------------------------------!
+    ! Daily leaching water for input to soil decomposition routine.
     !------------------------------------------------------------------!
     leaching_water_day = leaching_cm_day ! I think!
+    !------------------------------------------------------------------!
+    ! Advance SOM.
+    !------------------------------------------------------------------!
     call DECOMP
     !------------------------------------------------------------------!
     ! Accumulate annual diagnostics.
@@ -99,13 +126,17 @@ do ikyr = 1, nyr_sim
     Rhet_ann = Rhet_ann + day_s * Rhet
     NEE_ann  = NEE_ann  + day_s * Rhet
     !------------------------------------------------------------------!
+    Rhet_day = day_s * Rhet
+    !------------------------------------------------------------------!
+    write (24,'(2i5,3f12.4)') kyr_ce, kday, GPP_day, Raut_day, Rhet_day
+    !------------------------------------------------------------------!
   end do ! kday
   !--------------------------------------------------------------------!
   write (*,'(i5,10f12.4)') kyr_ce, GPP_ann, Raut_ann, Rhet_ann, &
                            NEE_ann, L_ann, biomass, SOM, PPT_ann, &
                            RO_ann, ET_ann
   !--------------------------------------------------------------------!
-  write (*,*) 'Cbal = ', CDM * biomass + sum (c_state) & ! final C
+  write (23,*) 'Cbal = ', CDM * biomass + sum (c_state) & ! final C
                          - Cbal & ! initial C
                          - (GPP_ann - Raut_ann - Rhet_ann) ! gains - losses
   kyr_ce = kyr_ce + 1
@@ -113,6 +144,8 @@ do ikyr = 1, nyr_sim
 end do ! kyr
 !----------------------------------------------------------------------!
 close (20)
+close (23)
+close (24)
 write (*,*)
 write (*,*) 'HYBRID15_CLR finished'
 write (*,*)

@@ -43,7 +43,7 @@ do kl = 1, nland
   ! For High Fen, Cambs (Google AI).
   if ((l <= -0.257) .and. (rt >= -0.257)) then
     if ((t >= 54.1054) .and. (b <= 54.1054)) then
-      write (20,'(i5,2f14.10)') kl,lon(x_k(kl)),lat(y_k(kl))
+      write (21,'(i5,2f14.10)') kl,lon(x_k(kl)),lat(y_k(kl))
       write (*,*) l,rt,t,b,kl
       ic_count = ic_count + 1
       kw = kl
