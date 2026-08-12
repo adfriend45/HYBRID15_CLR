@@ -14,9 +14,16 @@ open (11, file = 'driver.txt', status = 'old')
 read (11,*) syr
 read (11,*) eyr
 read (11,*) nyr_co2
-read (11,*) sm
+read (11,*) dz (1)
+read (11,*) dz (2)
+read (11,*) theta (1)
+read (11,*) theta (2)
+read (11,*) snowpack
 read (11,*) LAI
+read (11,*) height
 read (11,*) biomass
+sm (1) = theta (1) * dz (1)
+sm (2) = theta (2) * dz (2)
 do ip = 1, n_pools
   read (11,*) pool_initial (ip)
 end do

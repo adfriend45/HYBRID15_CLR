@@ -44,6 +44,21 @@ real :: spfh_l
 real :: pres_l
 real :: ugrd_l
 real :: vgrd_l
+!----------------------------------------------------------------------!
+! For hydrology
+!----------------------------------------------------------------------!
+real :: x
+real :: rain
+real :: snow
+real :: ddf
+real :: melt
+real :: snowpack
+real :: height
+real, dimension (2) :: sm
+real, dimension (2) :: dz
+real, dimension (2) :: theta
+real, dimension (2) :: dsm
+!----------------------------------------------------------------------!
 real :: D0
 real :: D_mol
 real :: swp
@@ -57,7 +72,6 @@ real :: Ko
 real :: es
 real :: ea
 real :: rwc
-real :: sm
 real :: Q_top
 real :: TC
 real :: PPT
@@ -94,6 +108,7 @@ real :: raa3
 real :: raa4
 real :: raa5
 real :: sm_q
+real :: perc
 real :: Lv
 real :: Delta
 real :: As
@@ -115,7 +130,6 @@ real :: rac
 real :: rsc
 real :: AET
 real :: PET
-real :: dsm
 real :: GPP_day
 real :: Raut_day
 real :: Rhet_day

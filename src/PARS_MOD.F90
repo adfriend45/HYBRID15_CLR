@@ -29,11 +29,24 @@ real, parameter :: day_s     = 24.0 * 60.0 * 60.0
 real, parameter :: sixhr_s   =  6.0 * 60.0 * 60.0
 real, parameter :: mol_per_J = 2.3e-6
 real, parameter :: tf        = 273.15
+!----------------------------------------------------------------------!
+! Hydrological parameters.
+!----------------------------------------------------------------------!
+real, parameter :: TS      = ( -2.0 + 2.0) / 2.0
+real, parameter :: DT      = ( zero + 3.0) / 2.0
+real, parameter :: b_S     = ( zero + 5.0) / 2.0
+real, parameter :: DDF_NR  = ( 0.1 + 10.0) / 2.0
+real, parameter :: DDF_R   = ( 0.1 + 20.0) / 2.0
+real, parameter :: DDF_INC = ( 0.1 +  5.0) / 2.0
+real, parameter :: TM      = (-3.0 +  3.0) / 2.0
+!----------------------------------------------------------------------!
 real, parameter :: Topt_J    = 31.0
 real, parameter :: omega_J   = 18.0
-real, parameter :: SM_MIN    = 250.0
-real, parameter :: SM_MAX    = 1505.0
-real, parameter :: b_RC      = 10.5
+real, parameter :: SM_MIN    = 25.0 ! 250.0
+real, parameter :: SM_MAX    = 250.0 ! 1505.0
+real, parameter :: b_RC      = (0.1 + 20.0) / 2.0
+real, parameter :: b_perc    = (0.1 + 5.0) / 2.0
+real, parameter :: perc_max  = (0.0 + 10.0) / 2.0
 real, parameter :: swp_max   = -1.1e-3 ! rawls et al., 92, loam REF
 real, parameter :: bsoil     = 4.5     ! rawls et al., 92, loam REF
 real, parameter :: a_Ksoil   = 2.0 + 3.0 / bsoil !

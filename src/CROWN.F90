@@ -1,10 +1,29 @@
 !======================================================================!
 subroutine CROWN
 !----------------------------------------------------------------------!
+! Environmental forcings:
+! tswrf_l
+! pres_l
+! tmp_l
+! TC
+! spfh_l
+! sm
+! Other forcings:
+! LAI
+!----------------------------------------------------------------------!
 use PARS_MOD
 use VARS_MOD
 !----------------------------------------------------------------------!
 implicit none
+!----------------------------------------------------------------------!
+! For testing.
+!tswrf_l = 900.0
+!pres_l = 101325.0
+!tmp_l = 298.0
+!TC = tmp_l - tf
+!spfh_l = 0.015
+!sm = sm_max
+!LAI = 8.0
 !----------------------------------------------------------------------!
 ! Downwelling photosynthetically-active radiation at top of canopy
 !                                                   mol[photons] m-2 s-1
@@ -59,9 +78,9 @@ D_mol = D0 / pres_l
 !----------------------------------------------------------------------!
 ! Soil relative water content                                   fraction
 !----------------------------------------------------------------------!
-rwc = (sm - SM_MIN) / (SM_MAX - SM_MIN)
+rwc = (sm (1) - SM_MIN) / (SM_MAX - SM_MIN)
 rwc = min (one, rwc)
-rwc = max (zero, rwc)
+rwc = max (eps, rwc)
 !----------------------------------------------------------------------!
 ! Soil water potential                                               MPa
 swp = swp_max * (one / (rwc ** bsoil)) ! friend95
