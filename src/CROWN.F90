@@ -78,12 +78,12 @@ D_mol = D0 / pres_l
 !----------------------------------------------------------------------!
 ! Soil relative water content                                   fraction
 !----------------------------------------------------------------------!
-rwc = (sm (1) - SM_MIN) / (SM_MAX - SM_MIN)
-rwc = min (one, rwc)
-rwc = max (eps, rwc)
+rwc (1) = (sm (1) - SM_MIN (1)) / (SM_MAX (1) - SM_MIN (1))
+rwc (1) = min (one, rwc (1))
+rwc (1) = max (eps, rwc (1))
 !----------------------------------------------------------------------!
 ! Soil water potential                                               MPa
-swp = swp_max * (one / (rwc ** bsoil)) ! friend95
+swp = swp_max * (one / (rwc (1) ** bsoil)) ! friend95
 !----------------------------------------------------------------------!
 ! Values at top of crown.
 !----------------------------------------------------------------------!

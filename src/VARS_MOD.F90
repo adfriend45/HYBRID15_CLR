@@ -54,7 +54,11 @@ real :: ddf
 real :: melt
 real :: snowpack
 real :: height
+real, dimension (2) :: SM_MIN
+real, dimension (2) :: SM_MAX
 real, dimension (2) :: sm
+real, dimension (2) :: rwc
+real, dimension (2) :: swc
 real, dimension (2) :: dz
 real, dimension (2) :: theta
 real, dimension (2) :: dsm
@@ -71,7 +75,6 @@ real :: Kc
 real :: Ko
 real :: es
 real :: ea
-real :: rwc
 real :: Q_top
 real :: TC
 real :: PPT
@@ -139,12 +142,12 @@ real :: RO_ann
 real :: ET_ann
 real :: l, rt, t, b
 real :: tmod
-real :: sm_day ! Mean day soil moisture (mm)
-real :: TC_day ! Mean day temperature (oC)
+real :: LE_day ! Mean daily latent heat flux (W/m2)
+real :: sm_day ! Mean daily soil moisture (mm)
+real :: TC_day ! Mean daily temperature (oC)
 real :: T_soil ! oC
 real :: denom
 real :: wfps
-real :: swc
 real :: wmod
 real :: amod
 real :: texture_modifier

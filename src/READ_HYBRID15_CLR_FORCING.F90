@@ -50,7 +50,7 @@ do kl = 1, nland
     end if
   end if
 end do
-write (*,*) 'Found ',ic_count,'gridboxe(s)'
+write (*,*) 'Found ',ic_count,'gridbox(es)'
 close (21)
 write (*,*) 'Using kw = ', kw
 !----------------------------------------------------------------------!

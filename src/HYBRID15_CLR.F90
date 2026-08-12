@@ -3,6 +3,7 @@ program HYBRID15_CLR
 !----------------------------------------------------------------------!
 ! Code to simulate NEE using process-based photosynthesis, respiration,
 ! and soil decomposition approaches.
+! Next add substrate evaporation.
 !----------------------------------------------------------------------!
 use PARS_MOD
 use VARS_MOD
@@ -34,6 +35,7 @@ do ikyr = 1, nyr_sim
   do kday = 1, ndays
     hr = 0.0 - dt_hr
     TC_day = zero
+    LE_day = zero
     sm_day = zero
     GPP_day  = zero
     Raut_day = zero
@@ -85,6 +87,10 @@ do ikyr = 1, nyr_sim
       !----------------------------------------------------------------!
       sm_day = sm_day + sm (1)
       !----------------------------------------------------------------!
+      ! Mean daily latent heat flux (mm)
+      !----------------------------------------------------------------!
+      LE_day   = LE_day   + LE
+      !----------------------------------------------------------------!
       ! Accumulate daily diagnostics.
       !----------------------------------------------------------------!
       GPP_day  = GPP_day  + dt_s * gpp
@@ -106,6 +112,10 @@ do ikyr = 1, nyr_sim
     !------------------------------------------------------------------!
     TC_day = TC_day / float (nt)
     !------------------------------------------------------------------!
+    ! Mean daily latent heat flux (W/m2)
+    !------------------------------------------------------------------!
+    LE_day = LE_day / float (nt)
+    !------------------------------------------------------------------!
     ! Mean daily soil moisture (mm)
     !------------------------------------------------------------------!
     sm_day = sm_day / float (nt)
@@ -126,8 +136,8 @@ do ikyr = 1, nyr_sim
     !------------------------------------------------------------------!
     Rhet_day = day_s * Rhet
     !------------------------------------------------------------------!
-    write (24,'(2i5,5f12.4)') kyr_ce, kday, GPP_day, Raut_day, &
-                              Rhet_day, sm_day, snowpack
+    write (24,'(2i5,6f12.4)') kyr_ce, kday, GPP_day, Raut_day, &
+                              Rhet_day, LE_day, sm_day, snowpack
     !------------------------------------------------------------------!
   end do ! kday
   !--------------------------------------------------------------------!

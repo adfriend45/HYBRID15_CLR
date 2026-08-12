@@ -22,13 +22,15 @@ read (11,*) snowpack
 read (11,*) LAI
 read (11,*) height
 read (11,*) biomass
-sm (1) = theta (1) * dz (1)
-sm (2) = theta (2) * dz (2)
 do ip = 1, n_pools
   read (11,*) pool_initial (ip)
 end do
 read (11,*) fiSOM
 close (11)
+SM_MAX (:) = dz (:) / saturation_to_field_capacity
+SM_MIN (:) = dz (:) / saturation_to_minimum
+sm (1) = theta (1) * dz (1)
+sm (2) = theta (2) * dz (2)
 pool_initial = fiSOM * pool_initial
 !----------------------------------------------------------------------!
 if (nyr_co2 > 2025) then

@@ -7,14 +7,15 @@ use VARS_MOD
 implicit none
 !----------------------------------------------------------------------!
 call ADVANCE_SNOW
+rwc (1) = (sm (1) - SM_MIN (1)) / (SM_MAX (1) - SM_MIN (1))
 !----------------------------------------------------------------------!
 ! Run-off (mm/s)
 !----------------------------------------------------------------------!
-sm_q = rwc ** b_RC * (rain + melt)
+sm_q = rwc (1) ** b_RC * (rain + melt)
 !----------------------------------------------------------------------!
 ! Drainage from top layer mm s-1
 !----------------------------------------------------------------------!
-perc = (rwc ** b_perc * perc_max) / day_s
+perc = (rwc (1) ** b_perc * perc_max) / day_s
 !----------------------------------------------------------------------!
 ! Calculate evaporation from top layer.
 !----------------------------------------------------------------------!
@@ -31,13 +32,13 @@ leaching_water_cm = dt_s * zero
 ! Impose limits on soil water.
 !----------------------------------------------------------------------!
 sm (1) = sm (1) + dt_s * dsm (1)
-if (sm (1) > SM_MAX) then
-  sm_q = sm_q + (sm (1) - SM_MAX) / dt_s
-  sm (1) = SM_MAX
+if (sm (1) > SM_MAX (1)) then
+  sm_q = sm_q + (sm (1) - SM_MAX (1)) / dt_s
+  sm (1) = SM_MAX (1)
 end if
-if (sm (1) < SM_MIN) then
-  aet = aet - (SM_MIN - sm (1)) / dt_s
-  sm (1) = SM_MIN
+if (sm (1) < SM_MIN (1)) then
+  aet = aet - (SM_MIN (1) - sm (1)) / dt_s
+  sm (1) = SM_MIN (1)
 end if
 !----------------------------------------------------------------------!
 PPT_ann = PPT_ann + dt_s * pre_l

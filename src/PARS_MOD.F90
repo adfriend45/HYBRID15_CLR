@@ -42,11 +42,11 @@ real, parameter :: TM      = (-3.0 +  3.0) / 2.0
 !----------------------------------------------------------------------!
 real, parameter :: Topt_J    = 31.0
 real, parameter :: omega_J   = 18.0
-real, parameter :: SM_MIN    = 25.0 ! 250.0
-real, parameter :: SM_MAX    = 250.0 ! 1505.0
+!real, parameter :: SM_MIN    = 25.0 ! 250.0
+!real, parameter :: SM_MAX    = 250.0 ! 1505.0
 real, parameter :: b_RC      = (0.1 + 20.0) / 2.0
 real, parameter :: b_perc    = (0.1 + 5.0) / 2.0
-real, parameter :: perc_max  = (0.0 + 10.0) / 2.0
+real, parameter :: perc_max  = 0.0 ! (0.0 + 10.0) / 2.0
 real, parameter :: swp_max   = -1.1e-3 ! rawls et al., 92, loam REF
 real, parameter :: bsoil     = 4.5     ! rawls et al., 92, loam REF
 real, parameter :: a_Ksoil   = 2.0 + 3.0 / bsoil !
@@ -80,8 +80,11 @@ real, parameter :: tau_SOM = 2.0 * 60.0 * 60.0 * 24.0 * 365.0
 !----------------------------------------------------------------------!
 real, parameter :: q10     = 2.0  ! from Manas namelist
 real, parameter :: T_ref   = 25.0 ! from Manas namelist
-real, parameter :: saturation_to_field_capacity = 1.72
-real, parameter :: swc_field_capacity = 0.5
+real, parameter :: saturation_to_field_capacity = one / 0.7 !1.72
+real, parameter :: saturation_to_minimum = &
+                   saturation_to_field_capacity * 1505.0 / 250.0
+real, parameter :: swc_field_capacity = one / &
+                   saturation_to_field_capacity
 real, parameter :: wfps_threshold = 60.0
 real, parameter :: moisture_dry_width = 800.0
 !----------------------------------------------------------------------!

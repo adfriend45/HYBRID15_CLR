@@ -6,7 +6,7 @@
 0.25   ! theta (1) (m3/m3)
 0.25   ! theta (2) (m3/m3)
 0.0    ! snowpack (mm)
-4.0    ! LAI
+5.0    ! LAI
 0.3    ! height (m)
 200.0  ! biomass (g[DM]/m2)
 80.0   ! pool_initial (1); g[C] m-2

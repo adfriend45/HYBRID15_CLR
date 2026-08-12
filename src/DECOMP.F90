@@ -22,8 +22,8 @@ denom = saturation_to_field_capacity * swc_field_capacity
 ! swc is volumetric soil water I think. guess calc like this
 ! really need soil depth. need to make consistent with hydro
 !----------------------------------------------------------------------!
-swc = sm_day / (SM_max / swc_field_capacity)
-wfps = 100.0 * swc / denom
+swc (1) = sm_day / (SM_max (1) / swc_field_capacity)
+wfps = 100.0 * swc (1) / denom
 wmod = exp (((wfps - wfps_threshold) ** 2) / (-moisture_dry_width))
 wmod = min (one, wmod)
 wmod = max (zero, wmod)
