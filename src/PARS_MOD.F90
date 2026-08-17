@@ -9,6 +9,7 @@ integer, parameter :: ntimes  =  1460
 integer, parameter :: nlon    =   720
 integer, parameter :: nlat    =   360
 integer, parameter :: n_pools =     8
+integer, parameter :: nlayers =     2
 integer, parameter :: ip_surface_structural = 1
 integer, parameter :: ip_soil_structural    = 2
 integer, parameter :: ip_active_som         = 3
@@ -40,6 +41,52 @@ real, parameter :: DDF_R   = ( 0.1 + 20.0) / 2.0
 real, parameter :: DDF_INC = ( 0.1 +  5.0) / 2.0
 real, parameter :: TM      = (-3.0 +  3.0) / 2.0
 !----------------------------------------------------------------------!
+! Mean canopy boundary layer resistance, taken from p. 845 of      (s/m)
+! shuttleworth85.
+!----------------------------------------------------------------------!
+real, parameter :: rbc =  25.0
+!----------------------------------------------------------------------!
+! Extinction coefficient of the canopy for net radiation. Value      (-)
+! taken from p. 845 of shuttleworth85.
+!----------------------------------------------------------------------!
+real, parameter :: KRnet = 0.7
+!----------------------------------------------------------------------!
+! Fraction of net radiation received at substrate conducted   (fraction)
+! into substrate, from p. 845 of shuttleworth85.
+!----------------------------------------------------------------------!
+real, parameter :: fG = 0.2
+!----------------------------------------------------------------------!
+! Height above canopy for meteorological measurements                (m)
+!----------------------------------------------------------------------!
+real, parameter :: xd = 2.0
+!----------------------------------------------------------------------!
+! Ratio of zero-plane displacement height to vegetation height   (ratio)
+! From Eqn. 22, shuttleworth85.
+!----------------------------------------------------------------------!
+real, parameter :: ddsp = 0.63
+!----------------------------------------------------------------------!
+! Maximum roughness length                                           (m)
+!----------------------------------------------------------------------!
+real, parameter :: z0_max = 2.0
+!----------------------------------------------------------------------!
+! Ratio of roughness length to canopy height (ratio)
+! Taken from debruin85.
+!----------------------------------------------------------------------!
+real, parameter :: dz0 = 0.07
+!----------------------------------------------------------------------!
+! von Karman's constanct                                 (dimensionless)
+!----------------------------------------------------------------------!
+real, parameter :: Karman = 0.4
+!----------------------------------------------------------------------!
+! Eddy diffusivity decay constant with complete canopy cover         (-)
+! Value from p. 846 of shuttleworth85.
+!----------------------------------------------------------------------!
+real, parameter :: ndiff = 2.5
+!----------------------------------------------------------------------!
+! Roughness length of bare substrate,  suttleworth85                 (m)
+!----------------------------------------------------------------------!
+real, parameter :: zp0 = 0.01
+!----------------------------------------------------------------------!
 real, parameter :: Topt_J    = 31.0
 real, parameter :: omega_J   = 18.0
 !real, parameter :: SM_MIN    = 25.0 ! 250.0
@@ -67,7 +114,6 @@ real, parameter :: asw       = 0.12   ! https://doi.org/10.1029/2020JD033582
 real, parameter :: emm       = 0.99   ! Google AI
 real, parameter :: sb        = 5.67e-8 ! W m-2 K-4
 real, parameter :: cp        = 1012.0! J kg-1 K-1
-real, parameter :: karman    = 0.40
 real, parameter :: CDM       = 0.474 ! from hybrid14_4; g[C] g[DM]-1
 !----------------------------------------------------------------------!
 ! Biomass turnover (fraction s-1)
@@ -175,6 +221,6 @@ real, parameter :: R = 8.314463
 ! Water vapour specific gas constant (J kg-1 K-1)
 real, parameter :: Rv  = 1.0e3 * R / Mw  ! J kg-1 K-1
 ! Dry air specific gas constant (J kg-1 K-1)
-real, parameter :: Ra  = 1.0e3 * R / Ma  ! J kg-1 K-1
+real, parameter :: Ra_gas  = 1.0e3 * R / Ma  ! J kg-1 K-1
 !----------------------------------------------------------------------!
 end module PARS_MOD

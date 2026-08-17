@@ -45,9 +45,29 @@ real :: pres_l
 real :: ugrd_l
 real :: vgrd_l
 !----------------------------------------------------------------------!
-! For hydrology
+! For HYDRO.
 !----------------------------------------------------------------------!
+real :: lamb
+real :: Rnet
+real :: eLAI
+real :: Rnets
+real :: G
+real :: A
+real :: As
 real :: x
+real :: dsp
+real :: ras_alpha
+real :: raa_alpha
+real :: ras_0
+real :: raa_0
+real :: gHR_closed
+real :: gHR_bare
+real :: PMw
+real :: PMc
+real :: PMs
+real :: Ra, Rs, Rc
+real :: Cc, Cs
+real :: LEc_bulk, LEs
 real :: rain
 real :: snow
 real :: ddf
@@ -65,6 +85,7 @@ real, dimension (2) :: dsm
 !----------------------------------------------------------------------!
 real :: D0
 real :: D_mol
+real :: D_mbar
 real :: swp
 real :: rho_mol
 real :: RT_air
@@ -112,14 +133,10 @@ real :: raa4
 real :: raa5
 real :: sm_q
 real :: perc
-real :: Lv
 real :: Delta
-real :: As
 real :: rho_kg
-real :: zp0
 real :: h
 real :: xh
-real :: d
 real :: z0
 real :: u
 real :: ras

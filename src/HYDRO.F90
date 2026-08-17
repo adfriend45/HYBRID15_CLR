@@ -51,6 +51,9 @@ end subroutine HYDRO
 !======================================================================!
 subroutine EVAP
 !----------------------------------------------------------------------!
+! Evaporation of surface. Largely based on Shuttleworth and Wallace
+! (1985).
+!----------------------------------------------------------------------!
 use PARS_MOD
 use VARS_MOD
 !----------------------------------------------------------------------!
@@ -61,32 +64,183 @@ implicit none
 ! Latent heat of vapourisation; Henderson-Sellers, Google AI    (J kg-1)
 ! Works really well cf. Jones new table.
 !----------------------------------------------------------------------!
-Lv = 1.91846e6 * (tmp_l / (tmp_l - 33.91)) ** 2
+! Latent heat of vapourisation of water                           (J/kg)
 !----------------------------------------------------------------------!
-! Derivative of CC equation (AI Google).
+lamb = (2503.0 - 2.386 * TC) * 1.0e3
+!----------------------------------------------------------------------!
+!Lv = 1.91846e6 * (tmp_l / (tmp_l - 33.91)) ** 2
+gamma = pres_l * cp / (0.622 * lamb) ! Pa K-1
+!----------------------------------------------------------------------!
+! Rate of change of saturation vapour pressure with temperature
+! Derivative of CC equation (AI Google).                          (mb/K)
 ! Closish to jones new table.
 !----------------------------------------------------------------------!
-Delta = (Lv * es) / (Rv * tmp_l ** 2) ! Pa K-1
-!----------------------------------------------------------------------!
-! Isothermal net radiation  (W m-2)
-!----------------------------------------------------------------------!
-As = (one - asw) * tswrf_l + dlwrf_l - emm * sb * tmp_l ** 4
-!----------------------------------------------------------------------!
+Delta = (lamb * es) / (Rv * tmp_l ** 2) ! Pa K-1
 ! Air density (kg m-3)
 !----------------------------------------------------------------------!
-rho_kg = pres_l / (Ra * tmp_l)
+rho_kg = pres_l / (Ra_gas * tmp_l)
+!----------------------------------------------------------------------!
+! Canopy (isothermal) net radiation                               (W/m2)
+!----------------------------------------------------------------------!
+Rnet = (one - asw) * tswrf_l + dlwrf_l - emm * sb * tmp_l ** 4
+!----------------------------------------------------------------------!
+! Volumetric water contents of soil layers                       (m3/m3)
+!----------------------------------------------------------------------!
+do kl = 1, nlayers
+  theta (1) = sm (1) / dz (1)
+end do
+!----------------------------------------------------------------------!
+! Surface resistance of the substrate                              (s/m)
+! Equation 20 of van de Griend & Owe (1995).
+!----------------------------------------------------------------------!
+rss = 10.0 * exp (0.3563 * (15.0 - theta (1)))
+!----------------------------------------------------------------------!
+! Bulk boundary layer resistance of vegetative elements            (s/m)
+!----------------------------------------------------------------------!
+rac = rbc / (2.0 * LAI)
+!----------------------------------------------------------------------!
+ ! Net radiation of substrate                                     (W/m2)
+!----------------------------------------------------------------------!
+Rnets = Rnet * exp (-KRnet * LAI)
+!----------------------------------------------------------------------!
+! Soil heat flux                                                  (W/m2)
+!----------------------------------------------------------------------!
+G = fG * Rnets
+!----------------------------------------------------------------------!
+! Total available energy                                          (W/m2)
+!----------------------------------------------------------------------!
+A = Rnet - G
+!----------------------------------------------------------------------!
+! Available energy at substrate                                   (W/m2)
+!----------------------------------------------------------------------!
+As = Rnets - G
+!----------------------------------------------------------------------!
+! Effective LAI                                                  (m2/m2)
+!----------------------------------------------------------------------!
+eLAI = min (4.0, LAI)
+!----------------------------------------------------------------------!
+! Reference height where meteorological measurements are made        (m)
+!----------------------------------------------------------------------!
+xh = height + xd
+!----------------------------------------------------------------------!
+! Zero-plane displacement, Eqn. 22 of shuttleworth85                 (m)
+!----------------------------------------------------------------------!
+dsp = ddsp * height
+!----------------------------------------------------------------------!
+! Roughness length                                                   (m)
+!----------------------------------------------------------------------!
+z0 = min (z0_max, dz0 * height)
+!----------------------------------------------------------------------!
+! Wind speed                                                       (m/s)
+!----------------------------------------------------------------------!
+u = sqrt (ugrd_l ** 2 + vgrd_l ** 2)
+!----------------------------------------------------------------------!
+! Value of ras with complete canopy cover, Eqn. 26 of              (s/m)
+! shuttleworth85.
+!----------------------------------------------------------------------!
+ras_alpha = (log ((xh - dsp) / z0) / ((Karman ** 2) * u)) * &
+            (height / (ndiff * (height - dsp))) * &
+	    (exp (ndiff) - exp (ndiff * (one - (dsp + z0) / height)))
+!----------------------------------------------------------------------!
+! Value of raa with complete canopy cover, Eqn. 27 of              (s/m)
+! shuttleworth85.
+!----------------------------------------------------------------------!
+raa_alpha = (log ((xh - dsp) / z0) / ((Karman ** 2) * u)) * &
+            (log ((xh - dsp) / (height - dsp)) + &
+	    height / (ndiff * (height - dsp)) * &
+	    (exp (ndiff * (one - (dsp + z0) / height)) - one))
+!----------------------------------------------------------------------!
+! Value of ras for bare substrate, Eqn. 28 of shuttleworth85       (s/m)
+!----------------------------------------------------------------------!
+ras_0 = log (xh / zp0) * log ((dsp + z0) / zp0) / ((Karman ** 2) * u)
+!----------------------------------------------------------------------!
+! Value of raa for bare substrate, Eqn. 29 of shuttleworth85       (s/m)
+!----------------------------------------------------------------------!
+raa_0 = (log (xh / zp0) ** 2) / ((Karman ** 2) * u) - ras_0
+!----------------------------------------------------------------------!
+! Aerodynamic resistance between substrate and canopy source       (s/m)
+! height, Eqn. 30 of shuttleworth85.
+!----------------------------------------------------------------------!
+ras = (one / 4.0) * eLAI * ras_alpha + (one / 4.0) * (4.0 - eLAI) &
+      * ras_0
+!----------------------------------------------------------------------!
+! Aerodynamic resistance between canopy source height and          (s/m)
+! reference level, Eqn. 30 of shuttleworth85.
+!----------------------------------------------------------------------!
+raa = (one / 4.0) * eLAI * raa_alpha + (one / 4.0) * (4.0 - eLAI) &
+      * raa_0
+!----------------------------------------------------------------------!
+! Bulk bounday layer resistance of vegetative elements in the canopy
+! Equation 20 of shuttleworth85                                    (m/s)
+!----------------------------------------------------------------------!
+rac = 25.0 / (2.0 * eLAI)
+!----------------------------------------------------------------------!
+! With allowing for isothermal net radiation.
+! Replaces ras by rhr (jones)
+!----------------------------------------------------------------------!
+rr =  rho_kg * cp  / (4.0 * emm * sb * tmp_l ** 3) ! jones app 3.
+!----------------------------------------------------------------------!
+! Parallel sum of conductances to sensible and radiative heat from
+! canopy to source height.
+!----------------------------------------------------------------------!
+rhr = one / ((one / raa) + (one / rr))
+!----------------------------------------------------------------------!
+! Parallel sum of conductances to sensible and radiative heat for
+! closed canopy                                                    (s/m)
+!----------------------------------------------------------------------!
+gHR_closed = one / (raa + rac) + one / rr
+!----------------------------------------------------------------------!
+! Parallel sum of conductances to sensible and radiative heat for
+! bare substrate                                                   (s/m)
+!----------------------------------------------------------------------!
+gHR_bare = one / (raa + ras) + one / rr
+!----------------------------------------------------------------------!
+! Canopy surface water heat flux                                  (W/m2)
+! Gets first bite of energy cherry. (rhr = raa + rac is the subs)
+!----------------------------------------------------------------------!
+PMw = (Delta * A + (rho_kg * cp * D0 - Delta * rac * As) * gHR_closed) &
+      / (Delta + gamma * (one + gHR_closed))
+!PMw = min (lamb * Wcan / dt_s, PMW)
+PMw = zero ! for now
+!----------------------------------------------------------------------!
+! Any energy left for transpiration and bare-soil evaporation?
+!----------------------------------------------------------------------!
+A = A - PMw
+!----------------------------------------------------------------------!
+! Canopy latent heat flux; Eqn. (12) of SW85 with rhr             (W/m2)
+!----------------------------------------------------------------------!
+PMc = (Delta * A + (rho_kg * cp * D0 - Delta * rac * As) * gHR_closed) &
+      / (Delta + gamma * (one + rsc * gHR_closed))
+!----------------------------------------------------------------------!
+! Bare-substrate latent heat flux                                 (W/m2)
+!----------------------------------------------------------------------!
+PMs = (Delta * A + (rho_kg * cp * D0 - Delta * ras * (A - As)) * &
+      gHR_bare) / (Delta + gamma * (one + rss * gHR_bare))
+!----------------------------------------------------------------------!
+! Coefficients to partition latent heat flux between canopy and
+! substrate.
+!----------------------------------------------------------------------!
+Ra = (Delta + gamma) * raa
+Rs = (Delta + gamma) * ras + gamma * rss
+Rc = (Delta + gamma) * rac + gamma * rsc
+Cc = one / (one + Rc * Ra / (Rs * (Rc + Ra)))
+Cs = one / (one + Rs * Ra / (Rc * (Rs + Ra)))
+!----------------------------------------------------------------------!
+! Latent heat fluxes of plot canopy and from substrate            (W/m2)
+!----------------------------------------------------------------------!
+LEc_bulk = Cc * PMc
+LEs      = Cs * PMs
+LE = LEc_bulk + LEs
+!----------------------------------------------------------------------!
 !----------------------------------------------------------------------!
 ! For bare substrate, eq. 28 (s m-1)
 !----------------------------------------------------------------------!
-zp0 = 0.01 ! Roughness length of bare substrate (m)
 h = 0.3 ! Canopy height (m)
 xh = h + 1.2 ! ref. height above canopy (m)
-d = 0.63 * h ! zero plane displacemet (m)
+dsp = 0.63 * h ! zero plane displacemet (m)
 z0 = 0.13 * h
-u = sqrt (ugrd_l ** 2 + vgrd_l ** 2) ! Wind speed (m s-1)
 ! eqn. 28 of jones
-ras = log (xh / zp0) * log ((d + z0) / zp0) / ((karman ** 2) * u)
-gamma = pres_l * cp / (0.622 * Lv) ! Pa K-1
+ras = log (xh / zp0) * log ((dsp + z0) / zp0) / ((karman ** 2) * u)
 !rss = 0.0 ! wet soil surface (s m-1)
 ! for fun, based on sw85 (iv). replace with rstom when have it.
 !fC = 2.0 * ca_fmol / (ca_fmol + 500.0e-6)
@@ -109,30 +263,30 @@ rr =  rho_kg * cp  /(4.0 * emm * sb * tmp_l ** 3)! jones app 3.
 !----------------------------------------------------------------------!
 rhr = one / ((one / ras) + (one / rr))
 !----------------------------------------------------------------------!
-LE = (Delta * As + rho_kg * cp * D0 / rhr) / &
-     (Delta + gamma * (one + rss / rhr))
+!LE = (Delta * Rnet + rho_kg * cp * D0 / rhr) / &
+!     (Delta + gamma * (one + rss / rhr))
 !----------------------------------------------------------------------!
 ! based on sw85 eqn. 12
 !----------------------------------------------------------------------!
 h = height
 xh = h + 1.2
-d = 0.63 * h ! zero plane displacemet (m)
+dsp = 0.63 * h ! zero plane displacemet (m)
 z0 = 0.13 * h
 u = sqrt (ugrd_l ** 2 + vgrd_l ** 2) ! Wind speed (m s-1)
-raa1 = log ((xh - d) / z0)
+raa1 = log ((xh - dsp) / z0)
 raa2 = (karman ** 2) * u
-raa3 = log ((xh - d) / (h - d))
-raa4 = h / (2.5 * (h - d))
-raa5 = exp (2.5 * (one - (d + z0) / h)) - one
+raa3 = log ((xh - dsp) / (h - dsp))
+raa4 = h / (2.5 * (h - dsp))
+raa5 = exp (2.5 * (one - (dsp + z0) / h)) - one
 raa = (raa1 / raa2) * (raa3 + raa4 * raa5)
 rac = 25.0 / (2.0 * min (4.0, LAI))
 rsc = rho_mol / (1.6 * gs_crown + eps)
 rhr = one / (one / (raa + rac) + (one / rr))
-LE = (Delta * As + rho_kg * cp * D0 / rhr) / &
-     (Delta + gamma * (one + rsc / rhr))
+!LE = (Delta * Rnet + rho_kg * cp * D0 / rhr) / &
+!     (Delta + gamma * (one + rsc / rhr))
 !----------------------------------------------------------------------!
 ! mm s-1
-pet = LE / Lv
+pet = LE / lamb
 !pet = 5.0 / (4.0 * dt)
 !----------------------------------------------------------------------!
 !for fun aet = rwc ** b_AET * pet
