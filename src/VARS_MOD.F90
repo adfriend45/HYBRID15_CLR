@@ -68,6 +68,13 @@ real :: PMs
 real :: Ra, Rs, Rc
 real :: Cc, Cs
 real :: LEc_bulk, LEs
+real :: Wcan
+real :: pot_Wcan
+real :: qflx_can
+real :: evap_can_surface
+real :: qflx_prec_grnd_rain
+real :: aet_soil
+real :: drip
 real :: rain
 real :: snow
 real :: ddf
@@ -148,8 +155,7 @@ real :: LE
 real :: raa
 real :: rac
 real :: rsc
-real :: AET
-real :: PET
+real :: aet
 real :: GPP_day
 real :: Raut_day
 real :: Rhet_day

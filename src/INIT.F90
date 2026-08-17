@@ -19,6 +19,7 @@ read (11,*) dz (2)
 read (11,*) theta (1)
 read (11,*) theta (2)
 read (11,*) snowpack
+read (11,*) Wcan
 read (11,*) LAI
 read (11,*) height
 read (11,*) biomass

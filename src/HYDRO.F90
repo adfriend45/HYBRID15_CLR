@@ -7,11 +7,8 @@ use VARS_MOD
 implicit none
 !----------------------------------------------------------------------!
 call ADVANCE_SNOW
+!----------------------------------------------------------------------!
 rwc (1) = (sm (1) - SM_MIN (1)) / (SM_MAX (1) - SM_MIN (1))
-!----------------------------------------------------------------------!
-! Run-off (mm/s)
-!----------------------------------------------------------------------!
-sm_q = rwc (1) ** b_RC * (rain + melt)
 !----------------------------------------------------------------------!
 ! Drainage from top layer mm s-1
 !----------------------------------------------------------------------!
@@ -21,9 +18,13 @@ perc = (rwc (1) ** b_perc * perc_max) / day_s
 !----------------------------------------------------------------------!
 call EVAP
 !----------------------------------------------------------------------!
-! Derivatives of soil moisture in each layer                        (mm)
+! Run-off (mm/s)
 !----------------------------------------------------------------------!
-dsm (1) = rain + melt - aet - sm_q - perc
+sm_q = rwc (1) ** b_RC * (qflx_prec_grnd_rain + drip + melt)
+!----------------------------------------------------------------------!
+! Derivatives of soil moisture in each layer                      (mm/s)
+!----------------------------------------------------------------------!
+dsm (1) = qflx_prec_grnd_rain + melt - aet_soil - sm_q - perc
 !----------------------------------------------------------------------!
 ! Place holder (cm tstep-1).
 !----------------------------------------------------------------------!
@@ -40,10 +41,6 @@ if (sm (1) < SM_MIN (1)) then
   aet = aet - (SM_MIN (1) - sm (1)) / dt_s
   sm (1) = SM_MIN (1)
 end if
-!----------------------------------------------------------------------!
-PPT_ann = PPT_ann + dt_s * pre_l
-RO_ann  = RO_ann  + dt_s * sm_q
-ET_ann  = ET_ann  + dt_s * aet
 !----------------------------------------------------------------------!
 end subroutine HYDRO
 !======================================================================!
@@ -71,6 +68,25 @@ lamb = (2503.0 - 2.386 * TC) * 1.0e3
 !Lv = 1.91846e6 * (tmp_l / (tmp_l - 33.91)) ** 2
 gamma = pres_l * cp / (0.622 * lamb) ! Pa K-1
 !----------------------------------------------------------------------!
+! Canopy interception (mm/s)
+!----------------------------------------------------------------------!
+pot_Wcan = pcan * LAI
+if (Wcan < pot_Wcan) then
+  qflx_can = min (rain, (pot_Wcan - Wcan) / dt_s)
+else
+  !--------------------------------------------------------------------!
+  ! Drip from canopy to soil surface (mm/s)
+  !--------------------------------------------------------------------!
+  drip = max (zero, (Wcan - pot_Wcan) / dt_s)
+  !--------------------------------------------------------------------!
+  qflx_can = -drip
+  !--------------------------------------------------------------------!
+end if
+!----------------------------------------------------------------------!
+! Rain precipitation incident on ground                           (mm/s)
+!----------------------------------------------------------------------!
+qflx_prec_grnd_rain = rain - qflx_can
+!----------------------------------------------------------------------!
 ! Rate of change of saturation vapour pressure with temperature
 ! Derivative of CC equation (AI Google).                          (mb/K)
 ! Closish to jones new table.
@@ -89,6 +105,10 @@ Rnet = (one - asw) * tswrf_l + dlwrf_l - emm * sb * tmp_l ** 4
 do kl = 1, nlayers
   theta (1) = sm (1) / dz (1)
 end do
+!----------------------------------------------------------------------!
+! Bulk stomatal resistance of the canopy (s/m)
+!----------------------------------------------------------------------!
+rsc = rho_mol / (1.6 * gs_crown + eps)
 !----------------------------------------------------------------------!
 ! Surface resistance of the substrate                              (s/m)
 ! Equation 20 of van de Griend & Owe (1995).
@@ -200,8 +220,8 @@ gHR_bare = one / (raa + ras) + one / rr
 !----------------------------------------------------------------------!
 PMw = (Delta * A + (rho_kg * cp * D0 - Delta * rac * As) * gHR_closed) &
       / (Delta + gamma * (one + gHR_closed))
-!PMw = min (lamb * Wcan / dt_s, PMW)
-PMw = zero ! for now
+PMw = min (lamb * Wcan / dt_s, PMw)
+evap_can_surface = PMw / lamb
 !----------------------------------------------------------------------!
 ! Any energy left for transpiration and bare-soil evaporation?
 !----------------------------------------------------------------------!
@@ -230,67 +250,23 @@ Cs = one / (one + Rs * Ra / (Rc * (Rs + Ra)))
 !----------------------------------------------------------------------!
 LEc_bulk = Cc * PMc
 LEs      = Cs * PMs
-LE = LEc_bulk + LEs
+LE = LEc_bulk + LEs + PMw
 !----------------------------------------------------------------------!
+! Remove evaporation and drip from canopy surface (mm/s)
 !----------------------------------------------------------------------!
-! For bare substrate, eq. 28 (s m-1)
+qflx_can = qflx_can - evap_can_surface
 !----------------------------------------------------------------------!
-h = 0.3 ! Canopy height (m)
-xh = h + 1.2 ! ref. height above canopy (m)
-dsp = 0.63 * h ! zero plane displacemet (m)
-z0 = 0.13 * h
-! eqn. 28 of jones
-ras = log (xh / zp0) * log ((dsp + z0) / zp0) / ((karman ** 2) * u)
-!rss = 0.0 ! wet soil surface (s m-1)
-! for fun, based on sw85 (iv). replace with rstom when have it.
-!fC = 2.0 * ca_fmol / (ca_fmol + 500.0e-6)
-!rss = 1000.0 * (one - rwc) * fC ! intercept reduced from 2000
+! Update canopy water (mm)
 !----------------------------------------------------------------------!
-! Total resistance to moisture from inside leaves to bulk air (s m-1)
+Wcan = Wcan + dt_s * qflx_can
 !----------------------------------------------------------------------!
-rss = rho_mol / (1.6 * gs_crown + eps) + ras
+! Total evaporation flux (mm/s)
 !----------------------------------------------------------------------!
-! Substrate ET, wet soil (W m-2)
-!LE = (Delta * As + rho_kg * cp * D0 / ras) / &
-!     (Delta + gamma * (one + rss / ras))
+aet = LE / lamb
 !----------------------------------------------------------------------!
-! With allowing for isothermal As
-! Replace ras by rhr (jones)
+! Evaporative flux from soil (mm/s)
 !----------------------------------------------------------------------!
-rr =  rho_kg * cp  /(4.0 * emm * sb * tmp_l ** 3)! jones app 3.
-!----------------------------------------------------------------------!
-! Parallel sum of conductances to sensible and radiative heat
-!----------------------------------------------------------------------!
-rhr = one / ((one / ras) + (one / rr))
-!----------------------------------------------------------------------!
-!LE = (Delta * Rnet + rho_kg * cp * D0 / rhr) / &
-!     (Delta + gamma * (one + rss / rhr))
-!----------------------------------------------------------------------!
-! based on sw85 eqn. 12
-!----------------------------------------------------------------------!
-h = height
-xh = h + 1.2
-dsp = 0.63 * h ! zero plane displacemet (m)
-z0 = 0.13 * h
-u = sqrt (ugrd_l ** 2 + vgrd_l ** 2) ! Wind speed (m s-1)
-raa1 = log ((xh - dsp) / z0)
-raa2 = (karman ** 2) * u
-raa3 = log ((xh - dsp) / (h - dsp))
-raa4 = h / (2.5 * (h - dsp))
-raa5 = exp (2.5 * (one - (dsp + z0) / h)) - one
-raa = (raa1 / raa2) * (raa3 + raa4 * raa5)
-rac = 25.0 / (2.0 * min (4.0, LAI))
-rsc = rho_mol / (1.6 * gs_crown + eps)
-rhr = one / (one / (raa + rac) + (one / rr))
-!LE = (Delta * Rnet + rho_kg * cp * D0 / rhr) / &
-!     (Delta + gamma * (one + rsc / rhr))
-!----------------------------------------------------------------------!
-! mm s-1
-pet = LE / lamb
-!pet = 5.0 / (4.0 * dt)
-!----------------------------------------------------------------------!
-!for fun aet = rwc ** b_AET * pet
-aet = pet
+aet_soil = (LEc_bulk + LEs) / lamb
 !----------------------------------------------------------------------!
 end subroutine EVAP
 !======================================================================!

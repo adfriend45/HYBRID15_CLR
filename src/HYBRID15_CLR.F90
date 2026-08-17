@@ -32,6 +32,7 @@ do ikyr = 1, nyr_sim
   ET_ann   = zero
   NEE_ann  = zero
   it = 0
+write (*,*) '1',sm,snowpack,Wcan
   do kday = 1, ndays
     hr = 0.0 - dt_hr
     TC_day = zero
@@ -98,6 +99,9 @@ do ikyr = 1, nyr_sim
       !----------------------------------------------------------------!
       ! Accumulate annual diagnostics.
       !----------------------------------------------------------------!
+      PPT_ann  = PPT_ann  + dt_s * pre_l
+      RO_ann   = RO_ann   + dt_s * sm_q
+      ET_ann   = ET_ann   + dt_s * aet
       GPP_ann  = GPP_ann  + dt_s * gpp
       Raut_ann = Raut_ann + dt_s * Raut
       NEE_ann  = NEE_ann  + dt_s * (Raut - gpp)
@@ -148,6 +152,7 @@ do ikyr = 1, nyr_sim
   write (23,*) 'Cbal = ', CDM * biomass + sum (c_state) & ! final C
                          - Cbal & ! initial C
                          - (GPP_ann - Raut_ann - Rhet_ann) ! gains - losses
+write (*,*) '2',sm,snowpack,Wcan
   kyr_ce = kyr_ce + 1
   !--------------------------------------------------------------------!
 end do ! kyr

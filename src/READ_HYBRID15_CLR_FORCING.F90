@@ -41,8 +41,10 @@ do kl = 1, nland
   !if ((l <= 19.01) .and. (rt >= 3.04)) then
   !  if ((t >= 45.0) .and. (b <= 54.39)) then
   ! For High Fen, Cambs (Google AI).
-  if ((l <= -0.257) .and. (rt >= -0.257)) then
-    if ((t >= 54.1054) .and. (b <= 54.1054)) then
+  !if ((l <= -0.257) .and. (rt >= -0.257)) then
+  !  if ((t >= 54.1054) .and. (b <= 54.1054)) then
+  if ((l <= 0.515) .and. (rt >= 0.515)) then
+    if ((t >= 52.552) .and. (b <= 52.552)) then
       write (21,'(i5,2f14.10)') kl,lon(x_k(kl)),lat(y_k(kl))
       write (*,*) l,rt,t,b,kl
       ic_count = ic_count + 1
