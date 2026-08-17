@@ -24,7 +24,13 @@ sm_q = rwc (1) ** b_RC * (qflx_prec_grnd_rain + drip + melt)
 !----------------------------------------------------------------------!
 ! Derivatives of soil moisture in each layer                      (mm/s)
 !----------------------------------------------------------------------!
-dsm (1) = qflx_prec_grnd_rain + melt - aet_soil - sm_q - perc
+if (theta (1) > theta (2)) then
+  dsm (1) = qflx_prec_grnd_rain + melt - aet_soil - sm_q - perc
+  dsm (2) = perc
+else
+  dsm (1) = qflx_prec_grnd_rain + melt - aet_surf - sm_q - perc
+  dsm (2) = perc - (aet_soil - aet_surf)
+end if
 !----------------------------------------------------------------------!
 ! Place holder (cm tstep-1).
 !----------------------------------------------------------------------!
@@ -33,6 +39,11 @@ leaching_water_cm = dt_s * zero
 ! Impose limits on soil water.
 !----------------------------------------------------------------------!
 sm (1) = sm (1) + dt_s * dsm (1)
+sm (2) = sm (2) + dt_s * dsm (2)
+if (sm (2) > SM_MAX (2)) then
+  sm (1) = sm (1) + (sm (2) - SM_MAX (2))
+  sm (2) = SM_MAX (2)
+end if
 if (sm (1) > SM_MAX (1)) then
   sm_q = sm_q + (sm (1) - SM_MAX (1)) / dt_s
   sm (1) = SM_MAX (1)
@@ -103,7 +114,7 @@ Rnet = (one - asw) * tswrf_l + dlwrf_l - emm * sb * tmp_l ** 4
 ! Volumetric water contents of soil layers                       (m3/m3)
 !----------------------------------------------------------------------!
 do kl = 1, nlayers
-  theta (1) = sm (1) / dz (1)
+  theta (kl) = sm (kl) / dz (kl)
 end do
 !----------------------------------------------------------------------!
 ! Bulk stomatal resistance of the canopy (s/m)
@@ -267,6 +278,7 @@ aet = LE / lamb
 ! Evaporative flux from soil (mm/s)
 !----------------------------------------------------------------------!
 aet_soil = (LEc_bulk + LEs) / lamb
+aet_surf = LEs / lamb
 !----------------------------------------------------------------------!
 end subroutine EVAP
 !======================================================================!

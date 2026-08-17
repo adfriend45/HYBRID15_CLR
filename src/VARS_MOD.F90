@@ -73,10 +73,11 @@ real :: pot_Wcan
 real :: qflx_can
 real :: evap_can_surface
 real :: qflx_prec_grnd_rain
-real :: aet_soil
+real :: aet_soil, aet_surf
 real :: drip
 real :: rain
 real :: snow
+real :: W0, W1
 real :: ddf
 real :: melt
 real :: snowpack
@@ -89,6 +90,7 @@ real, dimension (2) :: swc
 real, dimension (2) :: dz
 real, dimension (2) :: theta
 real, dimension (2) :: dsm
+real, dimension (2) :: sm_day ! Mean daily soil moisture (mm)
 !----------------------------------------------------------------------!
 real :: D0
 real :: D_mol
@@ -156,6 +158,7 @@ real :: raa
 real :: rac
 real :: rsc
 real :: aet
+real :: PPT_day
 real :: GPP_day
 real :: Raut_day
 real :: Rhet_day
@@ -166,7 +169,6 @@ real :: ET_ann
 real :: l, rt, t, b
 real :: tmod
 real :: LE_day ! Mean daily latent heat flux (W/m2)
-real :: sm_day ! Mean daily soil moisture (mm)
 real :: TC_day ! Mean daily temperature (oC)
 real :: T_soil ! oC
 real :: denom

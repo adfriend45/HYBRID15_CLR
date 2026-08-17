@@ -22,6 +22,7 @@ call INIT
 kyr_ce = syr
 do ikyr = 1, nyr_sim
   Cbal = CDM * biomass + sum (c_state)
+  W0 = sm (1) + sm (2) + Wcan
   ca_fmol = co2_ppm (kyr_ce) / 1.0e6 ! mol[CO2] mol[air]-1
   Raut_ann = zero ! Annual autotrophic respiration       (g[C] m-2 yr-1)
   GPP_ann  = zero ! Annual gross primary production      (g[C] m-2 yr-1)
@@ -35,9 +36,10 @@ do ikyr = 1, nyr_sim
 write (*,*) '1',sm,snowpack,Wcan
   do kday = 1, ndays
     hr = 0.0 - dt_hr
-    TC_day = zero
-    LE_day = zero
-    sm_day = zero
+    TC_day   = zero
+    LE_day   = zero
+    sm_day   = zero
+    PPT_day  = zero
     GPP_day  = zero
     Raut_day = zero
     total_litter_day = zero
@@ -52,7 +54,7 @@ write (*,*) '1',sm,snowpack,Wcan
       !----------------------------------------------------------------!
       tmp_l   = tmp   (ikyr,it) ! Air temperature                    (K)
       TC      = tmp_l - tf      ! Air temperature                   (oC)
-      pre_l   = pre   (ikyr,it) ! Precipitation                (mm/6-hr)
+      pre_l   = pre   (ikyr,it) ! Precipitation                   (mm/s)
       tswrf_l = tswrf (ikyr,it) ! Tot dnwd SW flx, sfc, time mean (W/m2)
       dlwrf_l = dlwrf (ikyr,it) ! Dnwd LW rad flx                 (W/m2)
       spfh_l  = spfh  (ikyr,it) ! Specific humidity              (kg/kg)
@@ -86,7 +88,9 @@ write (*,*) '1',sm,snowpack,Wcan
       !----------------------------------------------------------------!
       ! Mean daily soil moisture (mm)
       !----------------------------------------------------------------!
-      sm_day = sm_day + sm (1)
+      do kl = 1, nlayers
+        sm_day (kl) = sm_day (kl) + sm (kl)
+      end do
       !----------------------------------------------------------------!
       ! Mean daily latent heat flux (mm)
       !----------------------------------------------------------------!
@@ -94,6 +98,7 @@ write (*,*) '1',sm,snowpack,Wcan
       !----------------------------------------------------------------!
       ! Accumulate daily diagnostics.
       !----------------------------------------------------------------!
+      PPT_day  = PPT_day  + dt_s * pre_l
       GPP_day  = GPP_day  + dt_s * gpp
       Raut_day = Raut_day + dt_s * Raut
       !----------------------------------------------------------------!
@@ -122,7 +127,7 @@ write (*,*) '1',sm,snowpack,Wcan
     !------------------------------------------------------------------!
     ! Mean daily soil moisture (mm)
     !------------------------------------------------------------------!
-    sm_day = sm_day / float (nt)
+    sm_day (:) = sm_day (:) / float (nt)
     !------------------------------------------------------------------!
     ! Daily leaching water for input to soil decomposition routine.
     !------------------------------------------------------------------!
@@ -140,8 +145,9 @@ write (*,*) '1',sm,snowpack,Wcan
     !------------------------------------------------------------------!
     Rhet_day = day_s * Rhet
     !------------------------------------------------------------------!
-    write (24,'(2i5,6f12.4)') kyr_ce, kday, GPP_day, Raut_day, &
-                              Rhet_day, LE_day, sm_day, snowpack
+    write (24,'(2i5,7f12.4)') kyr_ce, kday, GPP_day, Raut_day, &
+                              Rhet_day, PPT_day, LE_day, sm_day (1), &
+                              snowpack
     !------------------------------------------------------------------!
   end do ! kday
   !--------------------------------------------------------------------!
@@ -153,6 +159,8 @@ write (*,*) '1',sm,snowpack,Wcan
                          - Cbal & ! initial C
                          - (GPP_ann - Raut_ann - Rhet_ann) ! gains - losses
 write (*,*) '2',sm,snowpack,Wcan
+  W1 = sm (1) + sm (2) + Wcan
+  write (23,*) 'Wbal = ',(W1-W0)-(PPT_ann-RO_ann-ET_ann)
   kyr_ce = kyr_ce + 1
   !--------------------------------------------------------------------!
 end do ! kyr
