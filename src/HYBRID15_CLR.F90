@@ -80,7 +80,7 @@ write (*,*) '1',sm,snowpack,Wcan
       !----------------------------------------------------------------!
       ! g[DM] m-2 day-1
       !----------------------------------------------------------------!
-      total_litter_day = total_litter_day + dt_s * litter
+      total_litter_day (1) = total_litter_day (1) + dt_s * litter
       !----------------------------------------------------------------!
       ! Water leaching in day (cm day-1)
       !----------------------------------------------------------------!
@@ -139,7 +139,7 @@ write (*,*) '1',sm,snowpack,Wcan
     !------------------------------------------------------------------!
     ! Accumulate annual diagnostics.
     !------------------------------------------------------------------!
-    L_ann    = L_ann    + total_litter_day
+    L_ann    = L_ann    + sum (total_litter_day (:))
     Rhet_ann = Rhet_ann + day_s * Rhet
     NEE_ann  = NEE_ann  + day_s * Rhet
     !------------------------------------------------------------------!

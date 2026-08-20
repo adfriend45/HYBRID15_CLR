@@ -24,15 +24,29 @@ read (11,*) LAI
 read (11,*) height
 read (11,*) biomass
 do ip = 1, n_pools
-  read (11,*) pool_initial (ip)
+  read (11,*) pool_initial (ip,1)
 end do
 read (11,*) fiSOM
 close (11)
-SM_MAX (:) = dz (:) / saturation_to_field_capacity
-SM_MIN (:) = dz (:) / saturation_to_minimum
+!----------------------------------------------------------------------!
+! Assume SM_MAX is saturated water content (porosity) and all soil is
+! peat. Using Eqn. 7.90 of oleson and theta_sat_om = 0.9. But obs
+! suggest 0.7, so calibrate down to that.
+!----------------------------------------------------------------------!
+SM_MAX (:) = theta_sat * dz (:)
+SM_MIN (:) = SM_MAX / saturation_to_minimum
+!----------------------------------------------------------------------!
 sm (1) = theta (1) * dz (1)
-sm (2) = theta (2) * dz (2)
-pool_initial = fiSOM * pool_initial
+sm (2) = SM_MAX (2) !theta (2) * dz (2)
+!----------------------------------------------------------------------!
+! Split SOM pools over layers in proportion to thicknesse.
+!----------------------------------------------------------------------!
+do kl = 1, nlayers
+  pool_initial (:,kl) = fiSOM * pool_initial (:,1) * dz (kl) / &
+                        (dz (1) + dz (2))
+end do
+!----------------------------------------------------------------------!
+allocate (T_soil (nlayers)) ! oC
 !----------------------------------------------------------------------!
 if (nyr_co2 > 2025) then
   write (*,*) 'nyr_co2 = ', nyr_co2, 'exceeds input file limit of 2025'
@@ -73,7 +87,9 @@ write (*,'(a125)') '   CE   g[C]/m/yr   g[C]/m/yr   g[C]/m/yr&
                &   g[C]/m/yr  g[DM]/m/yr    g[DM]/m2     g[C]/m2&
                &     mm yr-1    mm yr-1      mm yr-1'
 !----------------------------------------------------------------------!
-c_state (:) = pool_initial (:)
+do kl = 1, nlayers
+c_state (:,kl) = pool_initial (:,kl)
+end do
 !----------------------------------------------------------------------!
 end subroutine INIT
 !======================================================================!

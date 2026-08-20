@@ -23,8 +23,10 @@ integer :: kl
 integer :: ip ! SOM pool index (pool no.)
 real, dimension (nlon) :: lon ! Longitude (degrees east)
 real, dimension (nlat) :: lat ! Latitude (degrees north)
-real, dimension (n_pools) :: pool_initial, c_state, decay, k_decay, c_start, input_vec
+real, dimension (n_pools) :: decay, k_decay, c_start, input_vec
 real, dimension (n_pools) :: transfer_vec, c_end
+real, dimension (n_pools,nlayers) :: pool_initial, c_state
+real, dimension (nlayers) :: total_litter_day, total_input
 real, allocatable :: co2_ppm (:)
 real :: fiSOM
 real :: hr
@@ -70,6 +72,10 @@ real :: Cc, Cs
 real :: LEc_bulk, LEs
 real :: Wcan
 real :: pot_Wcan
+real :: qinmax
+real :: qflx_infl
+real :: qflx_infl_excess
+real :: qflx_in_soil_local
 real :: qflx_can
 real :: evap_can_surface
 real :: qflx_prec_grnd_rain
@@ -82,13 +88,14 @@ real :: ddf
 real :: melt
 real :: snowpack
 real :: height
-real, dimension (2) :: SM_MIN
-real, dimension (2) :: SM_MAX
+real, allocatable :: T_soil (:) ! oC
+real, dimension (2) :: SM_MIN ! Min. soil water storage in layer (mm)
+real, dimension (2) :: SM_MAX ! Max. soil water storage in layer (mm)
 real, dimension (2) :: sm
-real, dimension (2) :: rwc
-real, dimension (2) :: swc
-real, dimension (2) :: dz
-real, dimension (2) :: theta
+real, dimension (2) :: rwc    ! Soil water relative to
+real, dimension (2) :: swc    ! Soil water relative to
+real, dimension (2) :: dz     ! Layer thickness (mm)
+real, dimension (2) :: theta  ! Volumetric soil water (mm/mm)
 real, dimension (2) :: dsm
 real, dimension (2) :: sm_day ! Mean daily soil moisture (mm)
 !----------------------------------------------------------------------!
@@ -170,15 +177,12 @@ real :: l, rt, t, b
 real :: tmod
 real :: LE_day ! Mean daily latent heat flux (W/m2)
 real :: TC_day ! Mean daily temperature (oC)
-real :: T_soil ! oC
 real :: denom
 real :: wfps
 real :: wmod
 real :: amod
 real :: texture_modifier
 real :: fm_shoot, fm_root
-real :: total_litter_day
-real :: total_input
 real :: shoot_input, root_input
 real :: co2
 real :: silt_plus_clay, ft, cal, cap, cas, total

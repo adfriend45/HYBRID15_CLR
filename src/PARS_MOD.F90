@@ -33,13 +33,17 @@ real, parameter :: tf        = 273.15
 !----------------------------------------------------------------------!
 ! Hydrological parameters.
 !----------------------------------------------------------------------!
-real, parameter :: TS      = ( -2.0 + 2.0) / 2.0
-real, parameter :: DT      = ( zero + 3.0) / 2.0
-real, parameter :: b_S     = ( zero + 5.0) / 2.0
-real, parameter :: DDF_NR  = ( 0.1 + 10.0) / 2.0
-real, parameter :: DDF_R   = ( 0.1 + 20.0) / 2.0
-real, parameter :: DDF_INC = ( 0.1 +  5.0) / 2.0
-real, parameter :: TM      = (-3.0 +  3.0) / 2.0
+real, parameter :: TS       = ( -2.0 + 2.0) / 2.0
+real, parameter :: DT       = ( zero + 3.0) / 2.0
+real, parameter :: b_S      = ( zero + 5.0) / 2.0
+real, parameter :: DDF_NR   = ( 0.1 + 10.0) / 2.0
+real, parameter :: DDF_R    = ( 0.1 + 20.0) / 2.0
+real, parameter :: DDF_INC  = ( 0.1 +  5.0) / 2.0
+real, parameter :: TM       = (-3.0 +  3.0) / 2.0
+real, parameter :: b_RC     = (0.1 + 20.0) / 2.0
+real, parameter :: b_perc   = (0.1 + 5.0) / 2.0
+real, parameter :: perc_max = (0.0 + 10.0) / 2.0
+real, parameter :: hksat    = 25.0 / (60.0 * 60.0)
 !----------------------------------------------------------------------!
 ! Mean canopy boundary layer resistance, taken from p. 845 of      (s/m)
 ! shuttleworth85.
@@ -94,11 +98,6 @@ real, parameter :: pcan = 0.1
 !----------------------------------------------------------------------!
 real, parameter :: Topt_J    = 31.0
 real, parameter :: omega_J   = 18.0
-!real, parameter :: SM_MIN    = 25.0 ! 250.0
-!real, parameter :: SM_MAX    = 250.0 ! 1505.0
-real, parameter :: b_RC      = (0.1 + 20.0) / 2.0
-real, parameter :: b_perc    = (0.1 + 5.0) / 2.0
-real, parameter :: perc_max  = 1.0 ! (0.0 + 10.0) / 2.0
 real, parameter :: swp_max   = -1.1e-3 ! rawls et al., 92, loam REF
 real, parameter :: bsoil     = 4.5     ! rawls et al., 92, loam REF
 real, parameter :: a_Ksoil   = 2.0 + 3.0 / bsoil !
@@ -131,6 +130,8 @@ real, parameter :: tau_SOM = 2.0 * 60.0 * 60.0 * 24.0 * 365.0
 !----------------------------------------------------------------------!
 real, parameter :: q10     = 2.0  ! from Manas namelist
 real, parameter :: T_ref   = 25.0 ! from Manas namelist
+! Calibrated to obs of High Fen.
+real, parameter :: theta_sat = 0.7 ! Saturated vol. cont. (mm/mm)
 real, parameter :: saturation_to_field_capacity = one / 0.7 !1.72
 real, parameter :: saturation_to_minimum = &
                    saturation_to_field_capacity * 1505.0 / 250.0
@@ -145,11 +146,11 @@ real, parameter :: moisture_dry_width = 800.0
 real, parameter, dimension (n_pools) :: k_decay_max = &
                       (/ 3.9, 4.8, 7.3, 6.0, 14.8, 18.5, 0.2, 0.0045 /)
 !----------------------------------------------------------------------!
-! Soil texture fractions. They should sum to 1.
+! Soil texture fractions in each laer. They should sum to 1.
 !----------------------------------------------------------------------!
-real :: sand_fraction = 0.40
-real :: silt_fraction = 0.30
-real :: clay_fraction = 0.30
+real, dimension (nlayers) :: sand_fraction = (/0.40, 0.40/)
+real, dimension (nlayers) :: silt_fraction = (/0.30, 0.30/)
+real, dimension (nlayers) :: clay_fraction = (/0.30, 0.30/)
 !----------------------------------------------------------------------!
 ! Litter vegetation controls
 !----------------------------------------------------------------------!

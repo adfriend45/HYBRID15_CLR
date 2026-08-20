@@ -8,6 +8,8 @@ implicit none
 !----------------------------------------------------------------------!
 call ADVANCE_SNOW
 !----------------------------------------------------------------------!
+! Soil water relative to saturation in layers (fraction)
+!----------------------------------------------------------------------!
 rwc (1) = (sm (1) - SM_MIN (1)) / (SM_MAX (1) - SM_MIN (1))
 !----------------------------------------------------------------------!
 ! Drainage from top layer mm s-1
@@ -21,16 +23,28 @@ call EVAP
 ! Run-off (mm/s)
 !----------------------------------------------------------------------!
 sm_q = rwc (1) ** b_RC * (qflx_prec_grnd_rain + drip + melt)
+qinmax = hksat
+qflx_in_soil_local = qflx_prec_grnd_rain + melt - sm_q
+qflx_infl_excess = max (zero, qflx_in_soil_local - qinmax)
+qflx_infl = qflx_in_soil_local - qflx_infl_excess
+sm_q = sm_q + qflx_infl_excess
+!if(kday<270)write (*,'(3i5,8f12.4)') kyr_ce,kday,kt,pre_l*86400.0, &
+!sm_q*86400.0,qflx_in_soil_local*86400.0,qinmax*86400.0,qflx_infl_excess*86400.0
 !----------------------------------------------------------------------!
 ! Derivatives of soil moisture in each layer                      (mm/s)
 !----------------------------------------------------------------------!
-if (theta (1) > theta (2)) then
-  dsm (1) = qflx_prec_grnd_rain + melt - aet_soil - sm_q - perc
-  dsm (2) = perc
-else
-  dsm (1) = qflx_prec_grnd_rain + melt - aet_surf - sm_q - perc
-  dsm (2) = perc - (aet_soil - aet_surf)
-end if
+!if (theta (1) > theta (2)) then
+!  dsm (1) = qflx_infl - aet_surf - aet_soil - perc
+!  dsm (2) = perc
+!else
+!  dsm (1) = qflx_infl - aet_surf - perc
+!  dsm (2) = perc - (aet_soil - aet_surf)
+!end if
+!----------------------------------------------------------------------!
+! Assuming no drainage from bottom and 90% roots in top layer.
+!----------------------------------------------------------------------!
+dsm (1) = qflx_infl - aet_surf - 0.9 * aet_soil - perc
+dsm (2) = perc - 0.1 * aet_soil
 !----------------------------------------------------------------------!
 ! Place holder (cm tstep-1).
 !----------------------------------------------------------------------!
@@ -40,7 +54,7 @@ leaching_water_cm = dt_s * zero
 !----------------------------------------------------------------------!
 sm (1) = sm (1) + dt_s * dsm (1)
 sm (2) = sm (2) + dt_s * dsm (2)
-if (sm (2) > SM_MAX (2)) then
+if (sm (2) > (SM_MAX (2))) then
   sm (1) = sm (1) + (sm (2) - SM_MAX (2))
   sm (2) = SM_MAX (2)
 end if
