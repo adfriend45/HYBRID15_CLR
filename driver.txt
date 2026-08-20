@@ -10,6 +10,7 @@
 4.0    ! LAI
 0.3    ! height (m)
 200.0  ! biomass (g[DM]/m2)
+0.8    ! froot_top (fraction)
 80.0   ! pool_initial (1); g[C] m-2
 150.0  ! pool_initial (2); g[C] m-2
 255.0  ! pool_initial (3); g[C] m-2

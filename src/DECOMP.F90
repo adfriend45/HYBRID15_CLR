@@ -14,7 +14,6 @@ T_soil = TC_day
 denom = saturation_to_field_capacity * swc_field_capacity
 !----------------------------------------------------------------------!
 co2 = zero
-write (*,*) kday
 !----------------------------------------------------------------------!
 ! swc is volumetric soil water I think. guess calc like this
 ! really need soil depth. need to make consistent with hydro
@@ -42,7 +41,6 @@ do kl = 1, nlayers
   ! Combined temperature and water decay modifier.
   !--------------------------------------------------------------------!
   amod = tmod * wmod
-write (*,*) kl,theta(kl),wfps,wmod
   !--------------------------------------------------------------------!
   ! Active SOM turns over more slowly in fine-textured soils.  The term
   ! 1.0 - 0.75 * (silt + clay) reduces active SOM decay when silt + clay

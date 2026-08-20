@@ -83,7 +83,11 @@ real :: aet_soil, aet_surf
 real :: drip
 real :: rain
 real :: snow
+real :: ftop
+real :: froot_top
 real :: W0, W1
+real :: C0, C1
+real :: Cbal, Wbal
 real :: ddf
 real :: melt
 real :: snowpack
@@ -200,7 +204,6 @@ real :: L_ann ! g[C] m-2 yr-1
 real :: Raut_ann ! g[C] m-2 yr-1
 real :: Rhet_ann ! g[C] m-2 yr-1
 real :: NEE_ann ! g[C] m-2 yr-1
-real :: Cbal
 real, allocatable, dimension (:,:) :: tmp_global   ! K
 real, allocatable, dimension (:,:) :: pre_global   ! mm/6-hr
 real, allocatable, dimension (:,:) :: tswrf_global ! W m-2

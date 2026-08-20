@@ -23,13 +23,26 @@ call EVAP
 ! Run-off (mm/s)
 !----------------------------------------------------------------------!
 sm_q = rwc (1) ** b_RC * (qflx_prec_grnd_rain + drip + melt)
+!----------------------------------------------------------------------!
+! Maximum rate of infiltration (mm/s)
+!----------------------------------------------------------------------!
 qinmax = hksat
+!----------------------------------------------------------------------!
+! Potential rate of infiltration (mm/s)
+!----------------------------------------------------------------------!
 qflx_in_soil_local = qflx_prec_grnd_rain + melt - sm_q
+!----------------------------------------------------------------------!
+! Additional runoff because of infiltration limitation (mm/s)
+!----------------------------------------------------------------------!
 qflx_infl_excess = max (zero, qflx_in_soil_local - qinmax)
+!----------------------------------------------------------------------!
+! Actual rate of infiltration (mm/s)
+!----------------------------------------------------------------------!
 qflx_infl = qflx_in_soil_local - qflx_infl_excess
+!----------------------------------------------------------------------!
+! Add infiltration-limited amount to runoff (mm/s)
+!----------------------------------------------------------------------!
 sm_q = sm_q + qflx_infl_excess
-!if(kday<270)write (*,'(3i5,8f12.4)') kyr_ce,kday,kt,pre_l*86400.0, &
-!sm_q*86400.0,qflx_in_soil_local*86400.0,qinmax*86400.0,qflx_infl_excess*86400.0
 !----------------------------------------------------------------------!
 ! Derivatives of soil moisture in each layer                      (mm/s)
 !----------------------------------------------------------------------!
@@ -41,19 +54,31 @@ sm_q = sm_q + qflx_infl_excess
 !  dsm (2) = perc - (aet_soil - aet_surf)
 !end if
 !----------------------------------------------------------------------!
+! Assuming plants take water in proportion to rooting unless lower
+! layer is wetter.
+!----------------------------------------------------------------------!
+if (theta (1) > theta (2)) then
+  ftop = froot_top
+else
+  ftop = 0.5
+end if
+!----------------------------------------------------------------------!
 ! Assuming no drainage from bottom and 90% roots in top layer.
 !----------------------------------------------------------------------!
-dsm (1) = qflx_infl - aet_surf - 0.9 * aet_soil - perc
-dsm (2) = perc - 0.1 * aet_soil
+dsm (1) = qflx_infl - aet_surf - ftop * aet_soil - perc
+dsm (2) = perc - (one - ftop) * aet_soil
 !----------------------------------------------------------------------!
 ! Place holder (cm tstep-1).
 !----------------------------------------------------------------------!
 leaching_water_cm = dt_s * zero
 !----------------------------------------------------------------------!
-! Impose limits on soil water.
+! Advance soil water (mm)
 !----------------------------------------------------------------------!
 sm (1) = sm (1) + dt_s * dsm (1)
 sm (2) = sm (2) + dt_s * dsm (2)
+!----------------------------------------------------------------------!
+! Impose limits on soil water.
+!----------------------------------------------------------------------!
 if (sm (2) > (SM_MAX (2))) then
   sm (1) = sm (1) + (sm (2) - SM_MAX (2))
   sm (2) = SM_MAX (2)
@@ -65,6 +90,10 @@ end if
 if (sm (1) < SM_MIN (1)) then
   aet = aet - (SM_MIN (1) - sm (1)) / dt_s
   sm (1) = SM_MIN (1)
+end if
+if (sm (2) < SM_MIN (2)) then
+  aet = aet - (SM_MIN (2) - sm (2)) / dt_s
+  sm (2) = SM_MIN (2)
 end if
 !----------------------------------------------------------------------!
 end subroutine HYDRO
@@ -289,9 +318,9 @@ Wcan = Wcan + dt_s * qflx_can
 !----------------------------------------------------------------------!
 aet = LE / lamb
 !----------------------------------------------------------------------!
-! Evaporative flux from soil (mm/s)
+! Evaporative flux from bulk soil and from soil surface (mm/s)
 !----------------------------------------------------------------------!
-aet_soil = (LEc_bulk + LEs) / lamb
+aet_soil = LEc_bulk / lamb
 aet_surf = LEs / lamb
 !----------------------------------------------------------------------!
 end subroutine EVAP

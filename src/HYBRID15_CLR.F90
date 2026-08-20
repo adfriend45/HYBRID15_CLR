@@ -21,7 +21,7 @@ call INIT
 !----------------------------------------------------------------------!
 kyr_ce = syr
 do ikyr = 1, nyr_sim
-  Cbal = CDM * biomass + sum (c_state)
+  C0 = CDM * biomass + sum (c_state)
   W0 = sm (1) + sm (2) + Wcan
   ca_fmol = co2_ppm (kyr_ce) / 1.0e6 ! mol[CO2] mol[air]-1
   Raut_ann = zero ! Annual autotrophic respiration       (g[C] m-2 yr-1)
@@ -33,7 +33,6 @@ do ikyr = 1, nyr_sim
   ET_ann   = zero
   NEE_ann  = zero
   it = 0
-write (*,*) '1',sm,snowpack,Wcan
   do kday = 1, ndays
     hr = 0.0 - dt_hr
     TC_day   = zero
@@ -155,12 +154,16 @@ write (*,*) '1',sm,snowpack,Wcan
                            NEE_ann, L_ann, biomass, SOM, PPT_ann, &
                            RO_ann, ET_ann
   !--------------------------------------------------------------------!
-  write (23,*) 'Cbal = ', CDM * biomass + sum (c_state) & ! final C
-                         - Cbal & ! initial C
+  C1 = CDM * biomass + sum (c_state) ! final C
+  Cbal = C1 & ! final C
+                         - C0 & ! initial C
                          - (GPP_ann - Raut_ann - Rhet_ann) ! gains - losses
-write (*,*) '2',sm,snowpack,Wcan
+  write (23,*) 'Cbal = ', Cbal
+  if (abs (Cbal) > 1.0) write (*,*) 'Cbal problem',Cbal
   W1 = sm (1) + sm (2) + Wcan
-  write (23,*) 'Wbal = ',(W1-W0)-(PPT_ann-RO_ann-ET_ann)
+  Wbal = (W1-W0)-(PPT_ann-RO_ann-ET_ann)
+  write (23,*) 'Wbal = ',Wbal
+  if (abs(Wbal) > 1.0) write (*,*) 'Wbal problem',Wbal
   kyr_ce = kyr_ce + 1
   !--------------------------------------------------------------------!
 end do ! kyr

@@ -23,6 +23,7 @@ read (11,*) Wcan
 read (11,*) LAI
 read (11,*) height
 read (11,*) biomass
+read (11,*) froot_top
 do ip = 1, n_pools
   read (11,*) pool_initial (ip,1)
 end do
